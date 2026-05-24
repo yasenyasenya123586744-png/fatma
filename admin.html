@@ -22,2300 +22,1388 @@
   --text:        #f0ede8;
   --text2:       #9b9690;
   --text3:       #6a6560;
-  --success:     #4caf78;
-  --success-dim: rgba(76,175,120,0.12);
-  --danger:      #e05555;
-  --danger-dim:  rgba(224,85,85,0.12);
-  --warning:     #e0a840;
-  --warning-dim: rgba(224,168,64,0.12);
-  --info:        #5a9fd4;
-  --info-dim:    rgba(90,159,212,0.12);
-  --sidebar-w:   240px;
-  --radius:      10px;
-  --radius-sm:   6px;
-  --radius-lg:   14px;
-  --shadow:      0 4px 24px rgba(0,0,0,0.4);
-  --transition:  0.18s cubic-bezier(0.4,0,0.2,1);
+  --success:     #52b788;
+  --error:       #e63946;
+  --radius-lg:   12px;
+  --radius-md:   8px;
+  --radius-sm:   4px;
+  --font:        'Manrope', system-ui, -apple-system, sans-serif;
+  --transition:  all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-lg:   0 20px 40px rgba(0,0,0,0.5);
+  --shadow-md:   0 8px 24px rgba(0,0,0,0.3);
 }
 
-/* ═══════════════════════════════════════════════
-   RESET & BASE
-═══════════════════════════════════════════════ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:14px}
-body{
-  font-family:'Manrope',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  line-height:1.6;
-  min-height:100vh;
-  overflow-x:hidden;
-}
-a{color:inherit;text-decoration:none}
-button{font-family:inherit;cursor:pointer;border:none;outline:none}
-input,select,textarea{font-family:inherit;font-size:inherit}
-img{max-width:100%;display:block}
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+* { box-sizing:border-box; margin:0; padding:0; font-family:var(--font); -webkit-font-smoothing:antialiased; }
+body { background:var(--bg); color:var(--text); min-height:100vh; display:flex; overflow-x:hidden; }
 
 /* ═══════════════════════════════════════════════
-   LOGIN SCREEN
+   TOAST SYSTEM
 ═══════════════════════════════════════════════ */
-#login-screen{
-  display:flex;align-items:center;justify-content:center;
-  min-height:100vh;
-  background:var(--bg);
-  position:relative;overflow:hidden;
-}
-#login-screen::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 60% 60% at 50% 0%,rgba(201,169,110,0.08) 0%,transparent 70%);
-  pointer-events:none;
-}
-.login-card{
-  width:100%;max-width:400px;
-  background:var(--surface);
-  border:1px solid var(--border2);
-  border-radius:var(--radius-lg);
-  padding:40px;
-  position:relative;
-  box-shadow:0 0 0 1px rgba(201,169,110,0.05),var(--shadow);
-}
-.login-logo{
-  display:flex;align-items:center;gap:12px;
-  margin-bottom:32px;
-}
-.login-logo-icon{
-  width:40px;height:40px;
-  background:var(--accent);
-  border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:20px;
-}
-.login-logo-text{font-size:1.1rem;font-weight:700;color:var(--text)}
-.login-logo-text span{color:var(--accent)}
-.login-title{font-size:1.5rem;font-weight:700;margin-bottom:6px}
-.login-subtitle{color:var(--text2);font-size:0.875rem;margin-bottom:28px}
-.form-group{margin-bottom:16px}
-.form-label{display:block;font-size:0.8rem;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em}
-.form-input{
-  width:100%;padding:11px 14px;
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:var(--radius-sm);
-  color:var(--text);font-size:0.9rem;
-  transition:border-color var(--transition),box-shadow var(--transition);
-}
-.form-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
-.form-input::placeholder{color:var(--text3)}
-.btn-primary{
-  width:100%;padding:12px;
-  background:var(--accent);
-  color:#0a0a0a;font-weight:700;font-size:0.9rem;
-  border-radius:var(--radius-sm);
-  transition:opacity var(--transition),transform var(--transition);
-  margin-top:8px;
-}
-.btn-primary:hover{opacity:0.9;transform:translateY(-1px)}
-.btn-primary:active{transform:translateY(0)}
-.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-.login-error{
-  background:var(--danger-dim);border:1px solid rgba(224,85,85,0.2);
-  border-radius:var(--radius-sm);padding:10px 14px;
-  color:var(--danger);font-size:0.83rem;margin-top:12px;
-  display:none;
-}
-.login-attempts{color:var(--text3);font-size:0.78rem;text-align:center;margin-top:10px}
+#toast-container { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+.toast { background:var(--surface2); border-left:3px solid var(--accent); color:var(--text); padding:14px 20px; border-radius:var(--radius-md); box-shadow:var(--shadow-md); font-size:14px; font-weight:500; display:flex; align-items:center; gap:12px; transform:translateY(20px); opacity:0; animation:toastIn 0.3s forwards; min-width:280px; }
+@keyframes toastIn { to { transform:translateY(0); opacity:1; } }
+.toast.success { border-left-color:var(--success); }
+.toast.error { border-left-color:var(--error); }
 
 /* ═══════════════════════════════════════════════
-   MAIN LAYOUT
+   APP LAYOUT
 ═══════════════════════════════════════════════ */
-#app{display:none;min-height:100vh}
-.layout{display:flex;min-height:100vh}
+#auth-view { width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #0d0d0d 0%, #050505 100%); position:fixed; inset:0; z-index:9000; }
+.auth-card { background:var(--surface); border:1px solid var(--border); padding:40px; border-radius:var(--radius-lg); width:100%; max-width:400px; box-shadow:var(--shadow-lg); text-align:center; }
+.auth-card h1 { font-size:24px; font-weight:700; color:var(--accent); margin-bottom:8px; letter-spacing:-0.5px; }
+.auth-card p { font-size:14px; color:var(--text2); margin-bottom:32px; }
+
+#app-view { display:none; width:100%; min-height:100vh; }
+
+/* Sidebar */
+aside { width:260px; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; fixed:left; height:100vh; position:fixed; z-index:100; transition:var(--transition); }
+.brand { padding:32px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.brand-icon { width:32px; height:32px; background:var(--accent-dim); border:1px solid var(--accent); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--accent); font-weight:700; font-size:14px; }
+.brand-name { font-size:16px; font-weight:700; letter-spacing:0.5px; color:var(--text); }
+
+nav { padding:24px 12px; display:flex; flex-direction:column; gap:4px; flex:1; }
+.nav-item { display:flex; align-items:center; gap:12px; padding:12px 16px; color:var(--text2); text-decoration:none; border-radius:var(--radius-md); font-size:14px; font-weight:500; transition:var(--transition); cursor:pointer; }
+.nav-item:hover { color:var(--text); background:rgba(255,255,255,0.02); }
+.nav-item.active { color:var(--accent); background:var(--accent-dim); font-weight:600; }
+.nav-icon { width:18px; height:18px; opacity:0.7; }
+.nav-item.active .nav-icon { opacity:1; }
+
+.logout-btn { margin:24px 12px; padding:12px 16px; border:1px solid var(--border); border-radius:var(--radius-md); color:var(--error); font-size:14px; font-weight:500; text-align:center; cursor:pointer; transition:var(--transition); }
+.logout-btn:hover { background:rgba(230,57,70,0.08); border-color:rgba(230,57,70,0.2); }
+
+/* Main Content Area */
+main { flex:1; margin-left:260px; min-height:100vh; display:flex; flex-direction:column; background:var(--bg); transition:var(--transition); }
+header { height:80px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:between; padding:0 40px; justify-content:space-between; }
+.page-title h2 { font-size:20px; font-weight:700; letter-spacing:-0.5px; }
+
+.user-profile { display:flex; align-items:center; gap:12px; }
+.avatar { width:36px; height:36px; background:var(--surface3); border:1px solid var(--border2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:var(--text2); }
+
+.content-container { padding:40px; flex:1; max-width:1400px; width:100%; margin:0 auto; }
+.tab-content { display:none; animation:fadeIn 0.2s ease-out; }
+.tab-content.active { display:block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
 
 /* ═══════════════════════════════════════════════
-   SIDEBAR
-═══════════════════════════════════════════════ */
-.sidebar{
-  width:var(--sidebar-w);
-  background:var(--surface);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;
-  position:fixed;top:0;left:0;bottom:0;
-  z-index:100;
-  transition:transform var(--transition);
-}
-.sidebar-header{
-  padding:20px 16px;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:10px;
-}
-.sidebar-logo-icon{
-  width:32px;height:32px;background:var(--accent);
-  border-radius:8px;display:flex;align-items:center;justify-content:center;
-  font-size:16px;flex-shrink:0;
-}
-.sidebar-logo-text{font-size:0.88rem;font-weight:700;line-height:1.2}
-.sidebar-logo-text span{display:block;color:var(--accent);font-size:0.7rem;font-weight:500}
-.sidebar-nav{flex:1;padding:12px 10px;overflow-y:auto}
-.nav-section{margin-bottom:20px}
-.nav-section-label{
-  font-size:0.65rem;font-weight:700;color:var(--text3);
-  text-transform:uppercase;letter-spacing:0.1em;
-  padding:0 8px;margin-bottom:4px;
-}
-.nav-item{
-  display:flex;align-items:center;gap:10px;
-  padding:9px 10px;border-radius:var(--radius-sm);
-  cursor:pointer;font-size:0.85rem;font-weight:500;color:var(--text2);
-  transition:all var(--transition);margin-bottom:2px;
-  position:relative;
-}
-.nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item.active{background:var(--accent-dim);color:var(--accent)}
-.nav-item.active::before{
-  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
-  width:3px;height:18px;background:var(--accent);border-radius:0 3px 3px 0;
-}
-.nav-item svg,.nav-item .nav-icon{width:16px;height:16px;flex-shrink:0;opacity:0.7}
-.nav-item.active .nav-icon,.nav-item.active svg{opacity:1}
-.sidebar-footer{
-  padding:14px 10px;border-top:1px solid var(--border);
-}
-.sidebar-user{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 10px;border-radius:var(--radius-sm);
-  margin-bottom:4px;
-}
-.sidebar-user-avatar{
-  width:30px;height:30px;
-  background:var(--accent-dim);border:1px solid var(--accent-glow);
-  border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:0.75rem;font-weight:700;color:var(--accent);flex-shrink:0;
-}
-.sidebar-user-info{min-width:0}
-.sidebar-user-name{font-size:0.82rem;font-weight:600;truncate:1}
-.sidebar-user-role{font-size:0.7rem;color:var(--text3)}
-.btn-logout{
-  width:100%;padding:8px 10px;
-  background:transparent;
-  border:1px solid var(--border);
-  border-radius:var(--radius-sm);
-  color:var(--text3);font-size:0.8rem;
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  transition:all var(--transition);
-}
-.btn-logout:hover{background:var(--danger-dim);border-color:rgba(224,85,85,0.3);color:var(--danger)}
+   COMPONENTS & UTILITIES
+   ═══════════════════════════════════════════════ */
+/* Controls Row */
+.action-bar { display:flex; gap:16px; margin-bottom:24px; align-items:center; justify-content:space-between; }
+.search-wrapper { position:relative; flex:1; max-width:320px; }
+.search-input { width:100%; background:var(--surface); border:1px solid var(--border); padding:10px 16px 10px 40px; border-radius:var(--radius-md); color:var(--text); font-size:14px; transition:var(--transition); }
+.search-input:focus { border-color:var(--border2); outline:none; background:var(--surface2); }
+.search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); width:16px; height:16px; opacity:0.4; pointer-events:none; }
 
-/* ═══════════════════════════════════════════════
-   MAIN CONTENT
-═══════════════════════════════════════════════ */
-.main{
-  margin-left:var(--sidebar-w);
-  flex:1;display:flex;flex-direction:column;
-  min-height:100vh;
-}
-.topbar{
-  position:sticky;top:0;z-index:50;
-  background:rgba(10,10,10,0.85);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
-  padding:0 24px;
-  height:56px;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.topbar-left{display:flex;align-items:center;gap:12px}
-.menu-toggle{
-  display:none;background:transparent;color:var(--text2);
-  padding:6px;border-radius:var(--radius-sm);
-  transition:background var(--transition);
-}
-.menu-toggle:hover{background:var(--surface2)}
-.page-title{font-size:1rem;font-weight:700}
-.topbar-right{display:flex;align-items:center;gap:8px}
-.topbar-badge{
-  background:var(--accent-dim);border:1px solid var(--accent-glow);
-  color:var(--accent);font-size:0.7rem;font-weight:700;
-  padding:3px 8px;border-radius:20px;
-}
-.page-content{padding:24px;flex:1}
+.btn { background:var(--surface2); border:1px solid var(--border2); color:var(--text); padding:10px 20px; border-radius:var(--radius-md); font-size:14px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:var(--transition); text-decoration:none; }
+.btn:hover { background:var(--surface3); border-color:rgba(255,255,255,0.15); }
+.btn-primary { background:var(--accent); color:#000; border:none; }
+.btn-primary:hover { background:#d4b782; transform:translateY(-1px); }
+.btn-primary:active { transform:translateY(0); }
+.btn-danger { color:var(--error); border-color:rgba(230,57,70,0.2); }
+.btn-danger:hover { background:rgba(230,57,70,0.08); border-color:var(--error); }
 
-/* ═══════════════════════════════════════════════
-   SECTION (hidden/shown)
-═══════════════════════════════════════════════ */
-.section{display:none}
-.section.active{display:block}
+/* Forms */
+.form-group { margin-bottom:20px; }
+.form-group label { display:block; font-size:13px; font-weight:600; color:var(--text2); margin-bottom:8px; }
+.form-control { width:100%; background:var(--surface2); border:1px solid var(--border); padding:11px 14px; border-radius:var(--radius-md); color:var(--text); font-size:14px; transition:var(--transition); }
+.form-control:focus { border-color:var(--accent); outline:none; background:var(--surface3); }
+textarea.form-control { resize:vertical; min-height:100px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 
-/* ═══════════════════════════════════════════════
-   STATS GRID
-═══════════════════════════════════════════════ */
-.stats-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:16px;margin-bottom:28px;
-}
-.stat-card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:20px;
-  position:relative;overflow:hidden;
-  transition:border-color var(--transition),transform var(--transition);
-}
-.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
-.stat-card::after{
-  content:'';position:absolute;top:0;right:0;
-  width:80px;height:80px;
-  border-radius:50%;transform:translate(30%,-30%);
-  opacity:0.15;
-}
-.stat-card.gold::after{background:var(--accent)}
-.stat-card.green::after{background:var(--success)}
-.stat-card.blue::after{background:var(--info)}
-.stat-card.red::after{background:var(--danger)}
-.stat-label{font-size:0.72rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
-.stat-value{font-size:1.8rem;font-weight:800;line-height:1;margin-bottom:6px}
-.stat-card.gold .stat-value{color:var(--accent)}
-.stat-card.green .stat-value{color:var(--success)}
-.stat-card.blue .stat-value{color:var(--info)}
-.stat-card.red .stat-value{color:var(--danger)}
-.stat-sub{font-size:0.75rem;color:var(--text3)}
+.checkbox-label { display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; color:var(--text); user-select:none; margin-bottom:12px; }
+.checkbox-label input { appearance:none; width:18px; height:18px; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius-sm); cursor:pointer; display:grid; place-content:center; transition:var(--transition); }
+.checkbox-label input:checked { background:var(--accent); border-color:var(--accent); }
+.checkbox-label input:checked::before { content:""; width:10px; height:6px; border-left:2px solid #000; border-bottom:2px solid #000; transform:rotate(-45deg) translate(1px, -1px); }
 
-/* ═══════════════════════════════════════════════
-   SECTION HEADER
-═══════════════════════════════════════════════ */
-.section-header{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:20px;flex-wrap:wrap;gap:12px;
-}
-.section-title{font-size:1.1rem;font-weight:700}
-.section-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* Tables */
+.table-wrapper { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md); }
+table { width:100%; border-collapse:collapse; text-align:left; font-size:14px; }
+th { background:rgba(255,255,255,0.01); border-bottom:1px solid var(--border); padding:16px 24px; font-weight:600; color:var(--text2); font-size:13px; text-transform:uppercase; letter-spacing:0.5px; }
+td { padding:16px 24px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(255,255,255,0.005); }
 
-/* ═══════════════════════════════════════════════
-   BUTTONS
-═══════════════════════════════════════════════ */
-.btn{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:8px 14px;border-radius:var(--radius-sm);
-  font-size:0.82rem;font-weight:600;
-  transition:all var(--transition);cursor:pointer;border:none;
-  white-space:nowrap;
-}
-.btn-accent{background:var(--accent);color:#0a0a0a}
-.btn-accent:hover{opacity:0.85}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
-.btn-ghost:hover{background:var(--surface2);border-color:var(--border2);color:var(--text)}
-.btn-danger{background:var(--danger-dim);border:1px solid rgba(224,85,85,0.2);color:var(--danger)}
-.btn-danger:hover{background:rgba(224,85,85,0.2)}
-.btn-success{background:var(--success-dim);border:1px solid rgba(76,175,120,0.2);color:var(--success)}
-.btn-success:hover{background:rgba(76,175,120,0.2)}
-.btn-sm{padding:5px 10px;font-size:0.76rem}
-.btn-icon{padding:7px;border-radius:var(--radius-sm)}
+.td-product { display:flex; align-items:center; gap:16px; font-weight:500; }
+.td-img { width:44px; height:44px; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius-md); object-fit:cover; }
+.td-actions { display:flex; gap:8px; justify-content:flex-end; }
+.action-icon-btn { width:32px; height:32px; border-radius:var(--radius-md); border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; display:grid; place-content:center; transition:var(--transition); }
+.action-icon-btn:hover { border-color:var(--border2); color:var(--text); background:var(--surface2); }
+.action-icon-btn.delete:hover { color:var(--error); border-color:rgba(230,57,70,0.2); background:rgba(230,57,70,0.05); }
+.action-icon-btn svg { width:16px; height:16px; }
 
-/* ═══════════════════════════════════════════════
-   SEARCH & FILTERS
-═══════════════════════════════════════════════ */
-.filters-bar{
-  display:flex;align-items:center;gap:8px;
-  margin-bottom:16px;flex-wrap:wrap;
-}
-.search-box{
-  position:relative;flex:1;min-width:200px;max-width:320px;
-}
-.search-box input{
-  width:100%;padding:8px 12px 8px 34px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);color:var(--text);font-size:0.83rem;
-  transition:border-color var(--transition);
-}
-.search-box input:focus{outline:none;border-color:var(--accent)}
-.search-box svg{
-  position:absolute;left:10px;top:50%;transform:translateY(-50%);
-  color:var(--text3);width:14px;height:14px;pointer-events:none;
-}
-.filter-select{
-  padding:8px 12px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);color:var(--text);font-size:0.83rem;
-  cursor:pointer;
-}
-.filter-select:focus{outline:none;border-color:var(--accent)}
+/* Status Badges */
+.badge { display:inline-flex; align-items:center; padding:4px 8px; border-radius:var(--radius-sm); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.badge-success { background:rgba(82,183,136,0.1); color:var(--success); }
+.badge-neutral { background:rgba(255,255,255,0.05); color:var(--text2); }
 
-/* ═══════════════════════════════════════════════
-   TABLE
-═══════════════════════════════════════════════ */
-.table-wrap{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  overflow:hidden;
-}
-.data-table{width:100%;border-collapse:collapse}
-.data-table th{
-  padding:11px 16px;
-  font-size:0.72rem;font-weight:700;color:var(--text3);
-  text-transform:uppercase;letter-spacing:0.08em;
-  background:var(--surface2);
-  border-bottom:1px solid var(--border);
-  text-align:left;white-space:nowrap;
-}
-.data-table td{
-  padding:13px 16px;
-  border-bottom:1px solid var(--border);
-  font-size:0.83rem;vertical-align:middle;
-}
-.data-table tr:last-child td{border-bottom:none}
-.data-table tr:hover td{background:rgba(255,255,255,0.015)}
-.data-table .actions{display:flex;gap:6px;align-items:center}
-.cell-img{
-  width:40px;height:40px;border-radius:6px;
-  object-fit:cover;background:var(--surface2);
-  border:1px solid var(--border);
-}
-.cell-img.placeholder{
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;background:var(--surface2);
-  border:1px dashed var(--border);
-  border-radius:6px;
-}
+/* Pagination */
+.pagination-bar { display:flex; align-items:center; justify-content:space-between; padding:20px 24px; background:rgba(0,0,0,0.1); border-top:1px solid var(--border); }
+.pagination-info { font-size:13px; color:var(--text2); }
+.pagination-buttons { display:flex; gap:6px; }
+.page-btn { min-width:32px; height:32px; padding:0 8px; border:1px solid var(--border); background:transparent; color:var(--text2); border-radius:var(--radius-md); font-size:13px; font-weight:500; cursor:pointer; display:grid; place-content:center; transition:var(--transition); }
+.page-btn:hover:not([disabled]) { border-color:var(--border2); color:var(--text); background:var(--surface2); }
+.page-btn.active { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); font-weight:600; }
+.page-btn([disabled]) { opacity:0.3; cursor:not-allowed; }
 
-/* ═══════════════════════════════════════════════
-   BADGES / PILLS
-═══════════════════════════════════════════════ */
-.badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:2px 8px;border-radius:20px;
-  font-size:0.7rem;font-weight:700;text-transform:capitalize;
-}
-.badge-success{background:var(--success-dim);color:var(--success);border:1px solid rgba(76,175,120,0.2)}
-.badge-danger{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(224,85,85,0.2)}
-.badge-warning{background:var(--warning-dim);color:var(--warning);border:1px solid rgba(224,168,64,0.2)}
-.badge-info{background:var(--info-dim);color:var(--info);border:1px solid rgba(90,159,212,0.2)}
-.badge-accent{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow)}
-.badge-muted{background:rgba(255,255,255,0.04);color:var(--text3);border:1px solid var(--border)}
-.toggle-switch{
-  width:36px;height:20px;background:var(--surface2);
-  border:1px solid var(--border);border-radius:20px;
-  cursor:pointer;position:relative;transition:background var(--transition);
-}
-.toggle-switch.on{background:var(--success);border-color:var(--success)}
-.toggle-switch::after{
-  content:'';position:absolute;top:2px;left:2px;
-  width:14px;height:14px;background:#fff;border-radius:50%;
-  transition:transform var(--transition);
-}
-.toggle-switch.on::after{transform:translateX(16px)}
+/* Modals */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:2000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.2s ease; }
+.modal-overlay.active { opacity:1; pointer-events:auto; }
+.modal-window { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); width:100%; max-width:640px; box-shadow:var(--shadow-lg); transform:scale(0.96); transition:transform 0.2s ease; display:flex; flex-direction:column; max-height:90vh; }
+.modal-overlay.active .modal-window { transform:scale(1); }
+.modal-header { padding:24px 32px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.modal-header h3 { font-size:18px; font-weight:700; }
+.modal-close { background:transparent; border:none; color:var(--text2); cursor:pointer; opacity:0.6; transition:var(--transition); }
+.modal-close:hover { opacity:1; color:var(--text); }
+.modal-body { padding:32px; overflow-y:auto; flex:1; }
+.modal-footer { padding:20px 32px; border-top:1px solid var(--border); background:rgba(0,0,0,0.1); display:flex; justify-content:flex-end; gap:12px; }
 
-/* ═══════════════════════════════════════════════
-   MODAL
-═══════════════════════════════════════════════ */
-.modal-overlay{
-  display:none;position:fixed;inset:0;z-index:1000;
-  background:rgba(0,0,0,0.7);
-  backdrop-filter:blur(4px);
-  align-items:flex-start;justify-content:center;
-  padding:40px 16px;overflow-y:auto;
-}
-.modal-overlay.open{display:flex}
-.modal{
-  background:var(--surface);
-  border:1px solid var(--border2);
-  border-radius:var(--radius-lg);
-  width:100%;max-width:640px;
-  box-shadow:0 24px 80px rgba(0,0,0,0.6);
-  animation:modalIn 0.2s cubic-bezier(0.4,0,0.2,1);
-}
-@keyframes modalIn{from{opacity:0;transform:scale(0.96) translateY(-8px)}to{opacity:1;transform:none}}
-.modal-header{
-  padding:20px 24px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-}
-.modal-title{font-size:1rem;font-weight:700}
-.modal-close{
-  background:transparent;color:var(--text3);
-  width:28px;height:28px;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;transition:all var(--transition);
-}
-.modal-close:hover{background:var(--surface2);color:var(--text)}
-.modal-body{padding:24px}
-.modal-footer{
-  padding:16px 24px;border-top:1px solid var(--border);
-  display:flex;justify-content:flex-end;gap:8px;
-}
+/* Image Dropzone Upload */
+.image-upload-wrapper { border:2px dashed var(--border2); border-radius:var(--radius-lg); padding:32px; text-align:center; background:rgba(0,0,0,0.05); position:relative; transition:var(--transition); cursor:pointer; margin-bottom:20px; }
+.image-upload-wrapper:hover { border-color:var(--accent); background:rgba(201,169,110,0.02); }
+.image-upload-wrapper input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.upload-trigger-ui { display:flex; flex-direction:column; align-items:center; gap:12px; color:var(--text2); pointer-events:none; }
+.upload-icon { width:32px; height:32px; color:var(--accent); opacity:0.8; }
+.upload-text { font-size:14px; font-weight:500; }
+.upload-text span { color:var(--accent); text-decoration:underline; }
+.upload-hint { font-size:12px; opacity:0.6; }
 
-/* ═══════════════════════════════════════════════
-   FORM ELEMENTS IN MODAL
-═══════════════════════════════════════════════ */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.form-grid.cols3{grid-template-columns:1fr 1fr 1fr}
-.form-full{grid-column:1/-1}
-.modal .form-label{display:block;font-size:0.75rem;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em}
-.modal .form-input{
-  width:100%;padding:9px 12px;
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:var(--radius-sm);color:var(--text);font-size:0.85rem;
-  transition:border-color var(--transition);
-}
-.modal .form-input:focus{outline:none;border-color:var(--accent)}
-.modal textarea.form-input{resize:vertical;min-height:80px}
-.modal select.form-input{cursor:pointer}
-.input-row{display:flex;gap:10px;align-items:flex-end}
-.form-check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.83rem;color:var(--text2)}
-.form-check input[type=checkbox]{
-  width:15px;height:15px;accent-color:var(--accent);cursor:pointer;
-}
-.form-tabs{
-  display:flex;gap:0;
-  border:1px solid var(--border);
-  border-radius:var(--radius-sm);
-  overflow:hidden;margin-bottom:12px;
-}
-.form-tab{
-  flex:1;padding:7px;
-  background:transparent;color:var(--text3);font-size:0.78rem;font-weight:600;
-  border:none;cursor:pointer;transition:all var(--transition);text-align:center;
-}
-.form-tab.active{background:var(--accent-dim);color:var(--accent)}
+.preview-container { margin-top:16px; display:flex; gap:12px; flex-wrap:wrap; }
+.preview-thumb-box { width:88px; height:88px; border:1px solid var(--border2); border-radius:var(--radius-md); overflow:hidden; position:relative; background:var(--surface2); }
+.preview-thumb-box img { width:100%; height:100%; object-fit:cover; }
+.remove-thumb-btn { position:absolute; top:4px; right:4px; width:20px; height:20px; border-radius:50%; background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:11px; display:grid; place-content:center; cursor:pointer; transition:var(--transition); }
+.remove-thumb-btn:hover { background:var(--error); border-color:var(--error); }
 
-/* ═══════════════════════════════════════════════
-   IMAGE UPLOAD
-═══════════════════════════════════════════════ */
-.upload-zone{
-  border:2px dashed var(--border);border-radius:var(--radius);
-  padding:24px;text-align:center;cursor:pointer;
-  transition:all var(--transition);position:relative;
-  background:var(--surface2);
-}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--accent-dim)}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
-.upload-zone-icon{font-size:28px;margin-bottom:8px;opacity:0.5}
-.upload-zone-text{font-size:0.82rem;color:var(--text3)}
-.upload-zone-text strong{color:var(--accent)}
-.uploaded-preview{
-  position:relative;display:inline-block;margin-top:8px;
-}
-.uploaded-preview img{
-  width:80px;height:80px;object-fit:cover;border-radius:8px;
-  border:1px solid var(--border);
-}
-.uploaded-preview .remove-img{
-  position:absolute;top:-6px;right:-6px;
-  width:18px;height:18px;background:var(--danger);color:#fff;
-  border-radius:50%;font-size:11px;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-}
+/* Dashboard Grid Cards */
+.metrics-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:24px; margin-bottom:40px; }
+.metric-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; box-shadow:var(--shadow-md); display:flex; align-items:center; justify-content:space-between; }
+.metric-meta p { font-size:13px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.metric-meta h3 { font-size:28px; font-weight:700; letter-spacing:-0.5px; }
+.metric-icon { width:44px; height:44px; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius-md); display:grid; place-content:center; color:var(--accent); }
 
-/* ═══════════════════════════════════════════════
-   PAGINATION
-═══════════════════════════════════════════════ */
-.pagination{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 0;flex-wrap:wrap;gap:8px;
-}
-.pagination-info{font-size:0.78rem;color:var(--text3)}
-.pagination-btns{display:flex;gap:4px}
-.page-btn{
-  width:30px;height:30px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:6px;color:var(--text2);font-size:0.8rem;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all var(--transition);
-}
-.page-btn:hover{background:var(--surface2);color:var(--text)}
-.page-btn.active{background:var(--accent-dim);border-color:var(--accent-glow);color:var(--accent)}
-.page-btn:disabled{opacity:0.3;cursor:not-allowed}
+/* Grid for sub info */
+.dashboard-sections-grid { display:grid; grid-template-columns:1fr; gap:24px; }
 
-/* ═══════════════════════════════════════════════
-   ORDER DETAIL PANEL
-═══════════════════════════════════════════════ */
-.detail-panel{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);padding:20px;margin-bottom:16px;
-}
-.detail-panel h4{font-size:0.82rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:14px}
-.detail-row{
-  display:flex;justify-content:space-between;align-items:flex-start;
-  padding:6px 0;border-bottom:1px solid var(--border);font-size:0.83rem;
-}
-.detail-row:last-child{border-bottom:none}
-.detail-row .key{color:var(--text3)}
-.detail-row .val{color:var(--text);font-weight:500;text-align:right;max-width:60%}
+/* Spinner loader inside primary button */
+.spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,0.15); border-top-color:#000; border-radius:50%; animation:spin 0.6s linear infinite; vertical-align:middle; margin-right:6px; }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-/* ═══════════════════════════════════════════════
-   TOAST
-═══════════════════════════════════════════════ */
-#toast-container{
-  position:fixed;bottom:24px;right:24px;
-  z-index:9999;display:flex;flex-direction:column;gap:8px;
-  pointer-events:none;
-}
-.toast{
-  min-width:280px;max-width:380px;
-  padding:12px 16px;border-radius:var(--radius);
-  font-size:0.83rem;font-weight:500;
-  display:flex;align-items:flex-start;gap:10px;
-  animation:toastIn 0.25s cubic-bezier(0.4,0,0.2,1);
-  pointer-events:all;
-  box-shadow:var(--shadow);
-  border:1px solid;
-}
-@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
-.toast-out{animation:toastOut 0.25s forwards}
-@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
-.toast-success{background:#0f1f17;border-color:rgba(76,175,120,0.3);color:var(--success)}
-.toast-error{background:#1f0f0f;border-color:rgba(224,85,85,0.3);color:var(--danger)}
-.toast-info{background:#0f1520;border-color:rgba(90,159,212,0.3);color:var(--info)}
-.toast-warning{background:#1f1800;border-color:rgba(224,168,64,0.3);color:var(--warning)}
-.toast-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+/* Mobile Overlay Toggle */
+.sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(2px); z-index:90; }
+.menu-toggle { display:none; width:40px; height:40px; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; place-content:center; }
 
-/* ═══════════════════════════════════════════════
-   CONFIRM DIALOG
-═══════════════════════════════════════════════ */
-.confirm-overlay{
-  display:none;position:fixed;inset:0;z-index:2000;
-  background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);
-  align-items:center;justify-content:center;
-}
-.confirm-overlay.open{display:flex}
-.confirm-box{
-  background:var(--surface);border:1px solid var(--border2);
-  border-radius:var(--radius);padding:28px;
-  max-width:360px;width:calc(100% - 32px);
-  text-align:center;
-  animation:modalIn 0.18s ease;
-}
-.confirm-icon{font-size:36px;margin-bottom:12px}
-.confirm-title{font-size:1rem;font-weight:700;margin-bottom:6px}
-.confirm-msg{font-size:0.83rem;color:var(--text2);margin-bottom:20px;line-height:1.5}
-.confirm-actions{display:flex;gap:8px;justify-content:center}
+/* RTL support modifications */
+html[dir="rtl"] { text-align:right; }
+html[dir="rtl"] table { text-align:right; }
+html[dir="rtl"] .search-input { padding:10px 40px 10px 16px; }
+html[dir="rtl"] .search-icon { left:auto; right:14px; }
+html[dir="rtl"] aside { border-right:none; border-left:1px solid var(--border); left:auto; right:0; }
+html[dir="rtl"] main { margin-left:0; margin-right:260px; }
+html[dir="rtl"] .toast { border-left:none; border-right:3px solid var(--accent); }
+html[dir="rtl"] .toast.success { border-right-color:var(--success); }
+html[dir="rtl"] .toast.error { border-right-color:var(--error); }
+html[dir="rtl"] .modal-footer { justify-content:flex-start; }
+html[dir="rtl"] .td-actions { justify-content:flex-end; }
+html[dir="rtl"] .checkbox-label input:checked::before { transform:rotate(-45deg) translate(-1px, -1px); }
 
-/* ═══════════════════════════════════════════════
-   LOADING SPINNER
-═══════════════════════════════════════════════ */
-.spinner{
-  width:20px;height:20px;border:2px solid var(--border2);
-  border-top-color:var(--accent);border-radius:50%;
-  animation:spin 0.7s linear infinite;display:inline-block;
+/* Media Queries for Responsive Admin */
+@media(max-width:1024px) {
+  .menu-toggle { display:grid; }
+  aside { transform:translateX(260px); }
+  html[dir="rtl"] aside { transform:translateX(-260px); }
+  aside.open { transform:translateX(0); }
+  html[dir="rtl"] aside.open { transform:translateX(0); }
+  main { margin-left:0 !important; margin-right:0 !important; }
+  .sidebar-overlay.open { display:block; }
+  header { padding:0 24px; }
+  .content-container { padding:24px; }
 }
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-row td{text-align:center;padding:32px;color:var(--text3)}
-.empty-row td{text-align:center;padding:40px;color:var(--text3);font-size:0.85rem}
-
-/* ═══════════════════════════════════════════════
-   DASHBOARD RECENT
-═══════════════════════════════════════════════ */
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:0}
-.dash-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.dash-panel-header{
-  padding:14px 18px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
+@media(max-width:640px) {
+  .action-bar { flex-direction:column; align-items:stretch; }
+  .search-wrapper { max-width:100%; }
+  .form-row { grid-template-columns:1fr; gap:0; }
+  .modal-window { max-height:100vh; border-radius:0; height:100vh; }
+  .modal-body { padding:20px; }
+  .modal-header, .modal-footer { padding:16px 20px; }
 }
-.dash-panel-title{font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3)}
-.dash-panel-link{font-size:0.75rem;color:var(--accent);cursor:pointer}
-.dash-panel-link:hover{text-decoration:underline}
-
-/* ═══════════════════════════════════════════════
-   MOBILE OVERLAY
-═══════════════════════════════════════════════ */
-.sidebar-overlay{
-  display:none;position:fixed;inset:0;z-index:99;
-  background:rgba(0,0,0,0.6);
-}
-
-/* ═══════════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════════ */
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .sidebar-overlay.open{display:block}
-  .main{margin-left:0}
-  .menu-toggle{display:flex;align-items:center;justify-content:center}
-  .form-grid{grid-template-columns:1fr}
-  .form-grid.cols3{grid-template-columns:1fr}
-  .stats-grid{grid-template-columns:1fr 1fr}
-  .dash-grid{grid-template-columns:1fr}
-  .page-content{padding:16px}
-  .data-table th:nth-child(n+4),.data-table td:nth-child(n+4){display:none}
-}
-@media(max-width:480px){
-  .stats-grid{grid-template-columns:1fr}
-  .section-header{flex-direction:column;align-items:flex-start}
-}
-
-/* ═══════════════════════════════════════════════
-   MISC HELPERS
-═══════════════════════════════════════════════ */
-.text-accent{color:var(--accent)}
-.text-muted{color:var(--text3)}
-.text-sm{font-size:0.75rem}
-.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
-.mt8{margin-top:8px}
-.mt16{margin-top:16px}
-.gap8{gap:8px}
-.flex{display:flex;align-items:center}
-.star-icon::before{content:'★'}
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════
-     LOGIN SCREEN
-═══════════════════════════════════════════════ -->
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="login-logo-icon">🌿</div>
-      <div>
-        <div class="login-logo-text">L'Oro del <span>Nilo</span></div>
-      </div>
-    </div>
-    <h1 class="login-title">مرحباً بعودتك</h1>
-    <p class="login-subtitle">تسجيل دخول لوحة الإدارة</p>
-    <div class="form-group">
-      <label class="form-label">كلمة المرور</label>
-      <input type="password" class="form-input" id="login-password" placeholder="أدخل كلمة المرور" autocomplete="current-password"/>
-    </div>
-    <button class="btn-primary" id="login-btn" onclick="doLogin()">دخول</button>
-    <div class="login-error" id="login-error"></div>
-    <div class="login-attempts" id="login-attempts-msg"></div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     MAIN APP
-═══════════════════════════════════════════════ -->
-<div id="app">
-  <div class="layout">
-    <!-- Sidebar overlay (mobile) -->
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-logo-icon">🌿</div>
-        <div class="sidebar-logo-text">
-          L'Oro del Nilo
-          <span>لوحة الإدارة</span>
-        </div>
-      </div>
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <div class="nav-section-label">الرئيسية</div>
-          <div class="nav-item active" data-section="dashboard" onclick="navigate('dashboard')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            Dashboard
-          </div>
-        </div>
-        <div class="nav-section">
-          <div class="nav-section-label">المتجر</div>
-          <div class="nav-item" data-section="products" onclick="navigate('products')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-            المنتجات
-          </div>
-          <div class="nav-item" data-section="categories" onclick="navigate('categories')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h8M4 18h12"/></svg>
-            التصنيفات
-          </div>
-          <div class="nav-item" data-section="orders" onclick="navigate('orders')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-            الطلبات
-          </div>
-        </div>
-        <div class="nav-section">
-          <div class="nav-section-label">العملاء</div>
-          <div class="nav-item" data-section="customers" onclick="navigate('customers')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-            العملاء
-          </div>
-          <div class="nav-item" data-section="newsletter" onclick="navigate('newsletter')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            النشرة البريدية
-          </div>
-        </div>
-        <div class="nav-section">
-          <div class="nav-section-label">المحتوى</div>
-          <div class="nav-item" data-section="testimonials" onclick="navigate('testimonials')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/></svg>
-            التقييمات
-          </div>
-          <div class="nav-item" data-section="faq" onclick="navigate('faq')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
-            الأسئلة الشائعة
-          </div>
-        </div>
-        <div class="nav-section">
-          <div class="nav-section-label">النظام</div>
-          <div class="nav-item" data-section="settings" onclick="navigate('settings')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-            الإعدادات
-          </div>
-        </div>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="sidebar-user">
-          <div class="sidebar-user-avatar">A</div>
-          <div class="sidebar-user-info">
-            <div class="sidebar-user-name">Admin</div>
-            <div class="sidebar-user-role">Super Admin</div>
-          </div>
-        </div>
-        <button class="btn-logout" onclick="logout()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-          تسجيل الخروج
-        </button>
-      </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="main">
-      <header class="topbar">
-        <div class="topbar-left">
-          <button class="menu-toggle btn" onclick="toggleSidebar()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          </button>
-          <span class="page-title" id="page-title">Dashboard</span>
-        </div>
-        <div class="topbar-right">
-          <span class="topbar-badge">🌿 L'Oro del Nilo</span>
-        </div>
-      </header>
-
-      <div class="page-content">
-
-        <!-- ══ DASHBOARD ══ -->
-        <div class="section active" id="section-dashboard">
-          <div class="stats-grid" id="dash-stats">
-            <div class="stat-card gold"><div class="stat-label">المنتجات النشطة</div><div class="stat-value" id="stat-products">—</div><div class="stat-sub">إجمالي المنتجات</div></div>
-            <div class="stat-card blue"><div class="stat-label">إجمالي الطلبات</div><div class="stat-value" id="stat-orders">—</div><div class="stat-sub">جميع الحالات</div></div>
-            <div class="stat-card green"><div class="stat-label">العملاء</div><div class="stat-value" id="stat-customers">—</div><div class="stat-sub">مسجلون</div></div>
-            <div class="stat-card red"><div class="stat-label">الإيرادات</div><div class="stat-value" id="stat-revenue">—</div><div class="stat-sub">إجمالي المبيعات</div></div>
-          </div>
-          <div class="dash-grid">
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title">آخر الطلبات</span>
-                <span class="dash-panel-link" onclick="navigate('orders')">عرض الكل</span>
-              </div>
-              <table class="data-table" id="dash-orders-table">
-                <thead><tr><th>رقم الطلب</th><th>الإجمالي</th><th>الحالة</th></tr></thead>
-                <tbody><tr class="loading-row"><td colspan="3"><div class="spinner"></div></td></tr></tbody>
-              </table>
-            </div>
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title">أحدث المنتجات</span>
-                <span class="dash-panel-link" onclick="navigate('products')">عرض الكل</span>
-              </div>
-              <table class="data-table" id="dash-products-table">
-                <thead><tr><th>الاسم</th><th>السعر</th><th>المخزون</th></tr></thead>
-                <tbody><tr class="loading-row"><td colspan="3"><div class="spinner"></div></td></tr></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- ══ PRODUCTS ══ -->
-        <div class="section" id="section-products">
-          <div class="section-header">
-            <div class="section-title">إدارة المنتجات</div>
-            <div class="section-actions">
-              <button class="btn btn-accent" onclick="openProductModal()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                منتج جديد
-              </button>
-            </div>
-          </div>
-          <div class="filters-bar">
-            <div class="search-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input type="text" placeholder="بحث في المنتجات..." id="products-search" oninput="debounce(()=>loadProducts(),400)"/>
-            </div>
-            <select class="filter-select" id="products-category-filter" onchange="loadProducts()">
-              <option value="">كل التصنيفات</option>
-            </select>
-            <select class="filter-select" id="products-status-filter" onchange="loadProducts()">
-              <option value="">كل الحالات</option>
-              <option value="featured">مميز</option>
-              <option value="best_seller">الأكثر مبيعاً</option>
-            </select>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>صورة</th><th>الاسم</th><th>السعر</th><th>المخزون</th><th>التصنيف</th><th>نشط</th><th>إجراءات</th></tr></thead>
-              <tbody id="products-tbody"><tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr></tbody>
-            </table>
-          </div>
-          <div class="pagination" id="products-pagination"></div>
-        </div>
-
-        <!-- ══ CATEGORIES ══ -->
-        <div class="section" id="section-categories">
-          <div class="section-header">
-            <div class="section-title">إدارة التصنيفات</div>
-            <button class="btn btn-accent" onclick="openCategoryModal()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              تصنيف جديد
-            </button>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>الاسم (عربي)</th><th>الاسم (إيطالي)</th><th>Slug</th><th>الترتيب</th><th>نشط</th><th>إجراءات</th></tr></thead>
-              <tbody id="categories-tbody"><tr class="loading-row"><td colspan="6"><div class="spinner"></div></td></tr></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- ══ ORDERS ══ -->
-        <div class="section" id="section-orders">
-          <div class="section-header">
-            <div class="section-title">إدارة الطلبات</div>
-          </div>
-          <div class="filters-bar">
-            <div class="search-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input type="text" placeholder="رقم الطلب..." id="orders-search" oninput="debounce(()=>loadOrders(),400)"/>
-            </div>
-            <select class="filter-select" id="orders-status-filter" onchange="loadOrders()">
-              <option value="">كل الحالات</option>
-              <option value="pending">معلق</option>
-              <option value="confirmed">مؤكد</option>
-              <option value="processing">قيد المعالجة</option>
-              <option value="shipped">مشحون</option>
-              <option value="delivered">مسلّم</option>
-              <option value="cancelled">ملغي</option>
-              <option value="refunded">مسترد</option>
-            </select>
-            <select class="filter-select" id="orders-payment-filter" onchange="loadOrders()">
-              <option value="">كل المدفوعات</option>
-              <option value="paid">مدفوع</option>
-              <option value="unpaid">غير مدفوع</option>
-              <option value="refunded">مسترد</option>
-            </select>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>رقم الطلب</th><th>العميل</th><th>الإجمالي</th><th>الحالة</th><th>الدفع</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
-              <tbody id="orders-tbody"><tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr></tbody>
-            </table>
-          </div>
-          <div class="pagination" id="orders-pagination"></div>
-        </div>
-
-        <!-- ══ CUSTOMERS ══ -->
-        <div class="section" id="section-customers">
-          <div class="section-header">
-            <div class="section-title">العملاء</div>
-          </div>
-          <div class="filters-bar">
-            <div class="search-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input type="text" placeholder="بحث بالاسم أو الإيميل..." id="customers-search" oninput="debounce(()=>loadCustomers(),400)"/>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>الاسم</th><th>البريد</th><th>الهاتف</th><th>تاريخ التسجيل</th><th>نشط</th></tr></thead>
-              <tbody id="customers-tbody"><tr class="loading-row"><td colspan="5"><div class="spinner"></div></td></tr></tbody>
-            </table>
-          </div>
-          <div class="pagination" id="customers-pagination"></div>
-        </div>
-
-        <!-- ══ TESTIMONIALS ══ -->
-        <div class="section" id="section-testimonials">
-          <div class="section-header">
-            <div class="section-title">التقييمات والشهادات</div>
-            <button class="btn btn-accent" onclick="openTestimonialModal()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              إضافة شهادة
-            </button>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>الاسم</th><th>المدينة</th><th>التقييم</th><th>النص</th><th>معتمد</th><th>مميز</th><th>إجراءات</th></tr></thead>
-              <tbody id="testimonials-tbody"><tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- ══ FAQ ══ -->
-        <div class="section" id="section-faq">
-          <div class="section-header">
-            <div class="section-title">الأسئلة الشائعة</div>
-            <button class="btn btn-accent" onclick="openFaqModal()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              سؤال جديد
-            </button>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>السؤال (عربي)</th><th>التصنيف</th><th>الترتيب</th><th>نشط</th><th>إجراءات</th></tr></thead>
-              <tbody id="faq-tbody"><tr class="loading-row"><td colspan="5"><div class="spinner"></div></td></tr></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- ══ NEWSLETTER ══ -->
-        <div class="section" id="section-newsletter">
-          <div class="section-header">
-            <div class="section-title">المشتركون في النشرة</div>
-            <button class="btn btn-ghost" onclick="exportNewsletterCSV()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-              تصدير CSV
-            </button>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>البريد الإلكتروني</th><th>الاسم</th><th>اللغة</th><th>المصدر</th><th>نشط</th><th>تاريخ الاشتراك</th></tr></thead>
-              <tbody id="newsletter-tbody"><tr class="loading-row"><td colspan="6"><div class="spinner"></div></td></tr></tbody>
-            </table>
-          </div>
-          <div class="pagination" id="newsletter-pagination"></div>
-        </div>
-
-        <!-- ══ SETTINGS ══ -->
-        <div class="section" id="section-settings">
-          <div class="section-header">
-            <div class="section-title">إعدادات المتجر</div>
-            <button class="btn btn-accent" onclick="saveSettings()">حفظ الإعدادات</button>
-          </div>
-          <div style="max-width:640px">
-            <div class="detail-panel">
-              <h4>المعلومات الأساسية</h4>
-              <div class="form-group mt8">
-                <label class="form-label">اسم المتجر</label>
-                <input type="text" class="form-input" id="setting-site_name"/>
-              </div>
-              <div class="form-group mt8">
-                <label class="form-label">البريد الإلكتروني للتواصل</label>
-                <input type="email" class="form-input" id="setting-contact_email"/>
-              </div>
-              <div class="form-group mt8">
-                <label class="form-label">رقم الهاتف</label>
-                <input type="text" class="form-input" id="setting-contact_phone"/>
-              </div>
-            </div>
-            <div class="detail-panel mt16">
-              <h4>الشحن والضرائب</h4>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label class="form-label">تكلفة الشحن الأساسية (€)</label>
-                  <input type="number" class="form-input" id="setting-shipping_base_cost" step="0.1"/>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">شحن مجاني من (€)</label>
-                  <input type="number" class="form-input" id="setting-shipping_free_above"/>
-                </div>
-              </div>
-            </div>
-            <div class="detail-panel mt16">
-              <h4>وسائل التواصل الاجتماعي</h4>
-              <div class="form-group mt8">
-                <label class="form-label">Instagram URL</label>
-                <input type="text" class="form-input" id="setting-social_instagram" placeholder="https://instagram.com/..."/>
-              </div>
-              <div class="form-group mt8">
-                <label class="form-label">Facebook URL</label>
-                <input type="text" class="form-input" id="setting-social_facebook" placeholder="https://facebook.com/..."/>
-              </div>
-              <div class="form-group mt8">
-                <label class="form-label">رقم WhatsApp</label>
-                <input type="text" class="form-input" id="setting-whatsapp" placeholder="+39..."/>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /page-content -->
-    </main>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     MODALS
-═══════════════════════════════════════════════ -->
-
-<!-- Product Modal -->
-<div class="modal-overlay" id="product-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="product-modal-title">منتج جديد</div>
-      <button class="modal-close" onclick="closeModal('product-modal')">×</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="product-id"/>
-      <div class="form-tabs" id="product-lang-tabs">
-        <button class="form-tab active" onclick="switchLang('product','ar',this)">🇸🇦 عربي</button>
-        <button class="form-tab" onclick="switchLang('product','it',this)">🇮🇹 Italiano</button>
-        <button class="form-tab" onclick="switchLang('product','en',this)">🇬🇧 English</button>
-      </div>
-      <div id="product-lang-ar">
-        <div class="form-grid">
-          <div><label class="form-label">الاسم (عربي) *</label><input type="text" class="form-input" id="product-name_ar"/></div>
-          <div><label class="form-label">Slug *</label><input type="text" class="form-input" id="product-slug" placeholder="my-product"/></div>
-        </div>
-        <div class="mt8"><label class="form-label">الوصف (عربي)</label><textarea class="form-input" id="product-description_ar" rows="3"></textarea></div>
-      </div>
-      <div id="product-lang-it" style="display:none">
-        <div><label class="form-label">Nome (Italiano) *</label><input type="text" class="form-input" id="product-name_it"/></div>
-        <div class="mt8"><label class="form-label">Descrizione</label><textarea class="form-input" id="product-description_it" rows="3"></textarea></div>
-      </div>
-      <div id="product-lang-en" style="display:none">
-        <div><label class="form-label">Name (English) *</label><input type="text" class="form-input" id="product-name_en"/></div>
-        <div class="mt8"><label class="form-label">Description</label><textarea class="form-input" id="product-description_en" rows="3"></textarea></div>
-      </div>
-      <div class="form-grid mt8">
-        <div><label class="form-label">السعر (€) *</label><input type="number" class="form-input" id="product-price" step="0.01" min="0"/></div>
-        <div><label class="form-label">سعر التخفيض (€)</label><input type="number" class="form-input" id="product-sale_price" step="0.01" min="0"/></div>
-        <div><label class="form-label">المخزون</label><input type="number" class="form-input" id="product-stock" min="0" value="0"/></div>
-        <div><label class="form-label">الوزن (جرام)</label><input type="number" class="form-input" id="product-weight_grams"/></div>
-        <div><label class="form-label">SKU</label><input type="text" class="form-input" id="product-sku"/></div>
-        <div><label class="form-label">التصنيف</label>
-          <select class="form-input" id="product-category_id">
-            <option value="">بدون تصنيف</option>
-          </select>
-        </div>
-      </div>
-      <div class="flex gap8 mt8" style="flex-wrap:wrap">
-        <label class="form-check"><input type="checkbox" id="product-featured"/> مميز</label>
-        <label class="form-check"><input type="checkbox" id="product-best_seller"/> الأكثر مبيعاً</label>
-        <label class="form-check"><input type="checkbox" id="product-is_active" checked/> نشط</label>
-      </div>
-      <div class="mt8">
-        <label class="form-label">الصورة الرئيسية</label>
-        <div class="upload-zone" id="product-upload-zone">
-          <input type="file" accept="image/*" onchange="handleImageUpload(this,'product-main_image','product-upload-preview')"/>
-          <div class="upload-zone-icon">🖼️</div>
-          <div class="upload-zone-text">اسحب الصورة هنا أو <strong>اختر ملف</strong></div>
-        </div>
-        <div id="product-upload-preview" style="margin-top:8px"></div>
-        <input type="hidden" id="product-main_image"/>
-      </div>
-      <div class="form-grid mt8">
-        <div class="form-full"><label class="form-label">SEO Title</label><input type="text" class="form-input" id="product-seo_title"/></div>
-        <div class="form-full"><label class="form-label">SEO Description</label><input type="text" class="form-input" id="product-seo_description"/></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('product-modal')">إلغاء</button>
-      <button class="btn btn-accent" onclick="saveProduct()" id="save-product-btn">حفظ المنتج</button>
-    </div>
-  </div>
-</div>
-
-<!-- Category Modal -->
-<div class="modal-overlay" id="category-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="category-modal-title">تصنيف جديد</div>
-      <button class="modal-close" onclick="closeModal('category-modal')">×</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="category-id"/>
-      <div class="form-grid">
-        <div><label class="form-label">الاسم (عربي) *</label><input type="text" class="form-input" id="category-name_ar"/></div>
-        <div><label class="form-label">Nome (Italiano) *</label><input type="text" class="form-input" id="category-name_it"/></div>
-        <div><label class="form-label">Name (English) *</label><input type="text" class="form-input" id="category-name_en"/></div>
-        <div><label class="form-label">Slug *</label><input type="text" class="form-input" id="category-slug"/></div>
-        <div><label class="form-label">الترتيب</label><input type="number" class="form-input" id="category-sort_order" value="0"/></div>
-        <div style="display:flex;align-items:flex-end;padding-bottom:4px">
-          <label class="form-check"><input type="checkbox" id="category-is_active" checked/> نشط</label>
-        </div>
-      </div>
-      <div class="mt8">
-        <label class="form-label">صورة التصنيف</label>
-        <div class="upload-zone" id="category-upload-zone">
-          <input type="file" accept="image/*" onchange="handleImageUpload(this,'category-image','category-upload-preview')"/>
-          <div class="upload-zone-icon">🖼️</div>
-          <div class="upload-zone-text">اختر صورة للتصنيف</div>
-        </div>
-        <div id="category-upload-preview" style="margin-top:8px"></div>
-        <input type="hidden" id="category-image"/>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('category-modal')">إلغاء</button>
-      <button class="btn btn-accent" onclick="saveCategory()">حفظ التصنيف</button>
-    </div>
-  </div>
-</div>
-
-<!-- Order Detail Modal -->
-<div class="modal-overlay" id="order-modal">
-  <div class="modal" style="max-width:760px">
-    <div class="modal-header">
-      <div class="modal-title" id="order-modal-title">تفاصيل الطلب</div>
-      <button class="modal-close" onclick="closeModal('order-modal')">×</button>
-    </div>
-    <div class="modal-body" id="order-modal-body">
-      <div style="text-align:center;padding:32px"><div class="spinner"></div></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('order-modal')">إغلاق</button>
-      <button class="btn btn-accent" onclick="saveOrderStatus()" id="save-order-btn">تحديث الحالة</button>
-    </div>
-  </div>
-</div>
-
-<!-- Testimonial Modal -->
-<div class="modal-overlay" id="testimonial-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="testimonial-modal-title">شهادة جديدة</div>
-      <button class="modal-close" onclick="closeModal('testimonial-modal')">×</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="testimonial-id"/>
-      <div class="form-grid">
-        <div><label class="form-label">اسم العميل *</label><input type="text" class="form-input" id="testimonial-customer_name"/></div>
-        <div><label class="form-label">المدينة</label><input type="text" class="form-input" id="testimonial-customer_city"/></div>
-        <div><label class="form-label">الدولة</label><input type="text" class="form-input" id="testimonial-country" value="IT"/></div>
-        <div><label class="form-label">التقييم (1-5)</label><input type="number" class="form-input" id="testimonial-rating" min="1" max="5" value="5"/></div>
-      </div>
-      <div class="form-tabs mt8">
-        <button class="form-tab active" onclick="switchLang('testimonial','ar',this)">🇸🇦 عربي</button>
-        <button class="form-tab" onclick="switchLang('testimonial','it',this)">🇮🇹 Italiano</button>
-        <button class="form-tab" onclick="switchLang('testimonial','en',this)">🇬🇧 English</button>
-      </div>
-      <div id="testimonial-lang-ar"><textarea class="form-input" id="testimonial-content_ar" rows="3" placeholder="النص بالعربية"></textarea></div>
-      <div id="testimonial-lang-it" style="display:none"><textarea class="form-input" id="testimonial-content_it" rows="3" placeholder="Testo in italiano"></textarea></div>
-      <div id="testimonial-lang-en" style="display:none"><textarea class="form-input" id="testimonial-content_en" rows="3" placeholder="Text in English"></textarea></div>
-      <div class="flex gap8 mt8">
-        <label class="form-check"><input type="checkbox" id="testimonial-is_approved"/> معتمد</label>
-        <label class="form-check"><input type="checkbox" id="testimonial-is_featured"/> مميز</label>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('testimonial-modal')">إلغاء</button>
-      <button class="btn btn-accent" onclick="saveTestimonial()">حفظ</button>
-    </div>
-  </div>
-</div>
-
-<!-- FAQ Modal -->
-<div class="modal-overlay" id="faq-modal">
-  <div class="modal" style="max-width:720px">
-    <div class="modal-header">
-      <div class="modal-title" id="faq-modal-title">سؤال جديد</div>
-      <button class="modal-close" onclick="closeModal('faq-modal')">×</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="faq-id"/>
-      <div class="form-tabs">
-        <button class="form-tab active" onclick="switchLang('faq','ar',this)">🇸🇦 عربي</button>
-        <button class="form-tab" onclick="switchLang('faq','it',this)">🇮🇹 Italiano</button>
-        <button class="form-tab" onclick="switchLang('faq','en',this)">🇬🇧 English</button>
-      </div>
-      <div id="faq-lang-ar">
-        <div><label class="form-label">السؤال (عربي) *</label><input type="text" class="form-input" id="faq-question_ar"/></div>
-        <div class="mt8"><label class="form-label">الجواب (عربي) *</label><textarea class="form-input" id="faq-answer_ar" rows="3"></textarea></div>
-      </div>
-      <div id="faq-lang-it" style="display:none">
-        <div><label class="form-label">Domanda *</label><input type="text" class="form-input" id="faq-question_it"/></div>
-        <div class="mt8"><label class="form-label">Risposta *</label><textarea class="form-input" id="faq-answer_it" rows="3"></textarea></div>
-      </div>
-      <div id="faq-lang-en" style="display:none">
-        <div><label class="form-label">Question *</label><input type="text" class="form-input" id="faq-question_en"/></div>
-        <div class="mt8"><label class="form-label">Answer *</label><textarea class="form-input" id="faq-answer_en" rows="3"></textarea></div>
-      </div>
-      <div class="form-grid mt8">
-        <div><label class="form-label">التصنيف</label>
-          <select class="form-input" id="faq-category">
-            <option value="general">عام</option>
-            <option value="shipping">الشحن</option>
-            <option value="payment">الدفع</option>
-            <option value="returns">الإرجاع</option>
-          </select>
-        </div>
-        <div><label class="form-label">الترتيب</label><input type="number" class="form-input" id="faq-sort_order" value="0"/></div>
-        <div style="display:flex;align-items:flex-end;padding-bottom:4px">
-          <label class="form-check"><input type="checkbox" id="faq-is_active" checked/> نشط</label>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('faq-modal')">إلغاء</button>
-      <button class="btn btn-accent" onclick="saveFaq()">حفظ</button>
-    </div>
-  </div>
-</div>
-
-<!-- Confirm Dialog -->
-<div class="confirm-overlay" id="confirm-overlay">
-  <div class="confirm-box">
-    <div class="confirm-icon">⚠️</div>
-    <div class="confirm-title" id="confirm-title">تأكيد الحذف</div>
-    <div class="confirm-msg" id="confirm-msg">هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.</div>
-    <div class="confirm-actions">
-      <button class="btn btn-ghost" onclick="closeConfirm()">إلغاء</button>
-      <button class="btn btn-danger" id="confirm-ok-btn">تأكيد الحذف</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast Container -->
 <div id="toast-container"></div>
 
-<!-- ════════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════════ -->
+<div id="auth-view">
+  <div class="auth-card">
+    <h1>L'Oro del Nilo</h1>
+    <p>لوحة التحكم بالمتجر الإلكتروني</p>
+    <form id="auth-form" onsubmit="handleLogin(event)">
+      <div class="form-group" style="text-align:right;">
+        <label>كلمة مرور المسؤول</label>
+        <input type="password" id="auth-password" class="form-control" placeholder="••••••••" required style="text-align:center;letter-spacing:4px;"/>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">تسجيل الدخول</button>
+    </form>
+  </div>
+</div>
+
+<div id="app-view">
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+  
+  <aside id="app-sidebar">
+    <div class="brand">
+      <div class="brand-icon">Ω</div>
+      <div class="brand-name">L'Oro del Nilo</div>
+    </div>
+    <nav>
+      <a class="nav-item active" data-tab="dashboard" onclick="switchTab(this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/></svg>
+        <span>الرئيسية</span>
+      </a>
+      <a class="nav-item" data-tab="products" onclick="switchTab(this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>المنتجات</span>
+      </a>
+      <a class="nav-item" data-tab="categories" onclick="switchTab(this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <span>التصنيفات</span>
+      </a>
+      <a class="nav-item" data-tab="orders" onclick="switchTab(this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span>الطلبات</span>
+      </a>
+      <a class="nav-item" data-tab="coupons" onclick="switchTab(this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20n4 4m12-12a9 9 0 11-18 0 9 9 0 0118 0z" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
+        <span>الكوبونات</span>
+      </a>
+      <a class="nav-item" data-tab="customers" onclick="switchTab(this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span>العملاء</span>
+      </a>
+      <a class="nav-item" data-tab="newsletter" onclick="switchTab(this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L22 8m-9+11h.01M21 16v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2m14-5V7a5 5 0 00-10 0v4"/></svg>
+        <span>النشرة البريدية</span>
+      </a>
+      <a class="nav-item" data-tab="settings" onclick="switchTab(this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>الإعدادات</span>
+      </a>
+    </nav>
+    <div class="logout-btn" onclick="logout()">تسجيل الخروج</div>
+  </aside>
+
+  <main id="app-main">
+    <header>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <button class="menu-toggle" onclick="toggleSidebar(true)">☰</button>
+        <div class="page-title"><h2 id="shell-title">لوحة القيادة والمؤشرات</h2></div>
+      </div>
+      <div class="user-profile">
+        <span style="font-size:14px;font-weight:600;" id="user-display-name">المسؤول الرئيسي</span>
+        <div class="avatar">AD</div>
+      </div>
+    </header>
+    
+    <div class="content-container">
+      
+      <div id="tab-dashboard" class="tab-content active">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-meta"><p>إجمالي المبيعات</p><h3 id="metric-sales">EGP 0.00</h3></div>
+            <div class="metric-icon">💵</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-meta"><p>الطلبات الجديدة</p><h3 id="metric-orders">0</h3></div>
+            <div class="metric-icon">📦</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-meta"><p>عدد المنتجات</p><h3 id="metric-products">0</h3></div>
+            <div class="metric-icon">🛍️</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-meta"><p>المشتركون الجدد</p><h3 id="metric-customers">0</h3></div>
+            <div class="metric-icon">👥</div>
+          </div>
+        </div>
+        <div class="dashboard-sections-grid">
+           </div>
+      </div>
+
+      <div id="tab-products" class="tab-content">
+        <div class="action-bar">
+          <div class="search-wrapper">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" class="search-input" placeholder="ابحث باسم المنتج أو الـ SKU..." id="products-search" oninput="debounceSearch('products')"/>
+          </div>
+          <button class="btn btn-primary" onclick="openProductModal()">+ إضافة منتج جديد</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:40%;">المنتج</th>
+                <th>SKU</th>
+                <th>السعر</th>
+                <th>المخزون</th>
+                <th>الحالة</th>
+                <th style="text-align:right;width:120px;">الخيارات</th>
+              </tr>
+            </thead>
+            <tbody id="products-tbody"></tbody>
+          </table>
+          <div class="pagination-bar" id="products-pagination"></div>
+        </div>
+      </div>
+
+      <div id="tab-categories" class="tab-content">
+        <div class="action-bar">
+          <div class="search-wrapper">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" class="search-input" placeholder="ابحث عن تصنيف..." id="categories-search" oninput="debounceSearch('categories')"/>
+          </div>
+          <button class="btn btn-primary" onclick="openCategoryModal()">+ إضافة تصنيف جديد</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>اسم التصنيف</th>
+                <th>الرابط الدائم (Slug)</th>
+                <th>الوصف</th>
+                <th style="text-align:right;width:120px;">الخيارات</th>
+              </tr>
+            </thead>
+            <tbody id="categories-tbody"></tbody>
+          </table>
+          <div class="pagination-bar" id="categories-pagination"></div>
+        </div>
+      </div>
+
+      <div id="tab-orders" class="tab-content">
+        <div class="action-bar">
+          <div class="search-wrapper">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" class="search-input" placeholder="البحث برقم الطلب أو اسم العميل..." id="orders-search" oninput="debounceSearch('orders')"/>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>الطلب</th>
+                <th>العميل</th>
+                <th>التاريخ</th>
+                <th>الإجمالي</th>
+                <th>حالة الدفع</th>
+                <th>التوصيل</th>
+                <th style="text-align:right;width:80px;">الخيارات</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody"></tbody>
+          </table>
+          <div class="pagination-bar" id="orders-pagination"></div>
+        </div>
+      </div>
+
+      <div id="tab-coupons" class="tab-content">
+        <div class="action-bar">
+          <div class="search-wrapper">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" class="search-input" placeholder="ابحث عن كود خصم..." id="coupons-search" oninput="debounceSearch('coupons')"/>
+          </div>
+          <button class="btn btn-primary" onclick="openCouponModal()">+ إضافة كوبون جديد</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>كود الكوبون</th>
+                <th>نوع الخصم</th>
+                <th>القيمة</th>
+                <th>تاريخ الانتهاء</th>
+                <th>الحد الأقصى للاستخدام</th>
+                <th>المستخدم</th>
+                <th style="text-align:right;width:120px;">الخيارات</th>
+              </tr>
+            </thead>
+            <tbody id="coupons-tbody"></tbody>
+          </table>
+          <div class="pagination-bar" id="coupons-pagination"></div>
+        </div>
+      </div>
+
+      <div id="tab-customers" class="tab-content">
+        <div class="action-bar">
+          <div class="search-wrapper">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" class="search-input" placeholder="ابحث باسم العميل أو الإيميل..." id="customers-search" oninput="debounceSearch('customers')"/>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>العميل</th>
+                <th>الهاتف</th>
+                <th>المحافظة</th>
+                <th>تاريخ التسجيل</th>
+              </tr>
+            </thead>
+            <tbody id="customers-tbody"></tbody>
+          </table>
+          <div class="pagination-bar" id="customers-pagination"></div>
+        </div>
+      </div>
+
+      <div id="tab-newsletter" class="tab-content">
+        <div class="action-bar">
+          <div class="search-wrapper">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" class="search-input" placeholder="ابحث في رسائل النشرة البريدية..." id="newsletter-search" oninput="debounceSearch('newsletter')"/>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>البريد الإلكتروني المشترك</th>
+                <th>تاريخ الاشتراك</th>
+              </tr>
+            </thead>
+            <tbody id="newsletter-tbody"></tbody>
+          </table>
+          <div class="pagination-bar" id="newsletter-pagination"></div>
+        </div>
+      </div>
+
+      <div id="tab-settings" class="tab-content">
+        <div style="max-width:580px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;box-shadow:var(--shadow-md);">
+          <form id="settings-form" onsubmit="saveSettings(event)">
+            <div class="form-group">
+              <label>تكلفة التوصيل الافتراضية (EGP)</label>
+              <input type="number" id="settings-shipping" class="form-control" placeholder="60" required min="0"/>
+            </div>
+            <div class="form-group">
+              <label>رسالة شريط الإعلانات العلوية بالمتجر</label>
+              <textarea id="settings-banner" class="form-control" placeholder="شحن مجاني لجميع الطلبات هذا الأسبوع!"></textarea>
+            </div>
+            <button type="submit" id="save-settings-btn" class="btn btn-primary" style="margin-top:8px;">حفظ الإعدادات الفنية</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="product-modal">
+  <div class="modal-window">
+    <div class="modal-header">
+      <h3 id="product-modal-title">إضافة منتج جديد</h3>
+      <button class="modal-close" onclick="closeModal('product-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="product-form" onsubmit="event.preventDefault();">
+        <input type="hidden" id="product-id"/>
+        <div class="form-group">
+          <label>اسم المنتج متبوعاً بالحجم أو الوصف</label>
+          <input type="text" id="product-title" class="form-control" required placeholder="مثال: زيت الأرجان النقي 100 مل"/>
+        </div>
+        <div class="form-group">
+          <label>الوصف التفصيلي والفوائد للمنتج</label>
+          <textarea id="product-description" class="form-control" required placeholder="اكتب ميزات، فوائد، وطريقة استخدام المنتج..."></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>صورة المنتج الرئيسية</label>
+          <div class="image-upload-wrapper">
+            <input type="file" id="product-image-file" accept="image/*" onchange="previewImageFile(event)"/>
+            <div class="upload-trigger-ui">
+              <span class="upload-icon">📷</span>
+              <p class="upload-text">اسحب الصورة هنا أو <span>اختر ملف</span></p>
+              <p class="upload-hint">يدعم صيغ JPG, PNG, WEBP بدقة مربعة مثالية</p>
+            </div>
+          </div>
+          <div class="preview-container" id="product-image-preview-zone">
+            </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>رمز الـ SKU الفريد</label>
+            <input type="text" id="product-sku" class="form-control" required placeholder="SKU-XXXX"/>
+          </div>
+          <div class="form-group">
+            <label>التصنيف التابع له</label>
+            <select id="product-category" class="form-control" required>
+               <option value="">تحميل التصنيفات...</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>سعر البيع الافتراضي (EGP)</label>
+            <input type="number" id="product-price" class="form-control" required min="0" step="0.01" placeholder="0.00"/>
+          </div>
+          <div class="form-group">
+            <label>السعر الأصلي للمقارنة / شطب (EGP)</label>
+            <input type="number" id="product-compare-price" class="form-control" min="0" step="0.01" placeholder="اختياري للخصم"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>تكلفة القطعة (لحساب صافي الربح السري)</label>
+            <input type="number" id="product-cost" class="form-control" min="0" step="0.01" placeholder="اختياري"/>
+          </div>
+          <div class="form-group">
+            <label>المخزون المتوفر بالمستودع</label>
+            <input type="number" id="product-inventory" class="form-control" required min="0" placeholder="0"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>الوزن الافتراضي للمنتج (بالجرام)</label>
+          <input type="number" id="product-weight" class="form-control" required min="0" placeholder="مثال: 250"/>
+        </div>
+        <div style="margin-top:24px;display:flex;flex-wrap:wrap;gap:24px;">
+          <label class="checkbox-label">
+            <input type="checkbox" id="product-status" checked/>
+            <span>نشط ومعروض للبيع الآن بالمتجر</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="product-featured"/>
+            <span>تمييز المنتج بقسم التوصيات المميزة</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="product-bestseller"/>
+            <span>الأكثر مبيعاً ورواجاً</span>
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('product-modal')">إلغاء</button>
+      <button class="btn btn-primary" id="save-product-btn" onclick="saveProduct()">حفظ المنتج</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="category-modal">
+  <div class="modal-window">
+    <div class="modal-header">
+      <h3 id="category-modal-title">إضافة تصنيف جديد</h3>
+      <button class="modal-close" onclick="closeModal('category-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="category-form" onsubmit="event.preventDefault();">
+        <input type="hidden" id="category-id"/>
+        <div class="form-group">
+          <label>اسم التصنيف العربي</label>
+          <input type="text" id="category-name" class="form-control" required placeholder="مثال: العناية بالشعر"/>
+        </div>
+        <div class="form-group">
+          <label>الرابط الدائم (Slug بالإنجليزية فريد)</label>
+          <input type="text" id="category-slug" class="form-control" required placeholder="hair-care"/>
+        </div>
+        <div class="form-group">
+          <label>الوصف العام المكتصر</label>
+          <textarea id="category-description" class="form-control" placeholder="اكتب سطر تعريفي للتصنيف..."></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('category-modal')">إلغاء</button>
+      <button class="btn btn-primary" id="save-category-btn" onclick="saveCategory()">حفظ التصنيف</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="coupon-modal">
+  <div class="modal-window">
+    <div class="modal-header">
+      <h3 id="coupon-modal-title">إضافة كوبون خصم جديد</h3>
+      <button class="modal-close" onclick="closeModal('coupon-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="coupon-form" onsubmit="event.preventDefault();">
+        <input type="hidden" id="coupon-id"/>
+        <div class="form-group">
+          <label>كود الكوبون الحرفي المشهور</label>
+          <input type="text" id="coupon-code" class="form-control" required placeholder="GOLDEN10" style="text-transform:uppercase;"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>نوع الخصم</label>
+            <select id="coupon-type" class="form-control" required>
+              <option value="percentage">نسبة مئوية (%)</option>
+              <option value="fixed">مبلغ ثابت بـ (EGP)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>قيمة الخصم</label>
+            <input type="number" id="coupon-value" class="form-control" required min="0" step="0.01" placeholder="10"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>تاريخ ووقت انتهاء الكوبون</label>
+            <input type="datetime-local" id="coupon-expires" class="form-control" required/>
+          </div>
+          <div class="form-group">
+            <label>الحد الأقصى لعدد مرات الاستخدام الشامل</label>
+            <input type="number" id="coupon-usage" class="form-control" required min="1" placeholder="100"/>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('coupon-modal')">إلغاء</button>
+      <button class="btn btn-primary" id="save-coupon-btn" onclick="saveCoupon()">حفظ الكوبون</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="order-modal">
+  <div class="modal-window" style="max-width:750px;">
+    <div class="modal-header">
+      <h3 id="order-modal-title">تفاصيل الفاتورة والطلب</h3>
+      <button class="modal-close" onclick="closeModal('order-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="order-modal-body">
+       </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+       <div id="order-status-management-uiz"></div>
+       <button class="btn btn-primary" onclick="closeModal('order-modal')">إغلاق وتأكيد</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ═══════════════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════════════
-const API = ''; // base URL — empty for same-origin
-const CORRECT_PASS = 'LoroDel Nilo@2026';
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS   = 60000; // 1 minute
-
-// ═══════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════
-let loginAttempts = 0;
-let lockedUntil   = null;
-let currentSection = 'dashboard';
-let confirmCallback = null;
-
-// Pagination state
-const pagState = {
-  products:   {page:1,limit:20,total:0},
-  orders:     {page:1,limit:20,total:0},
-  customers:  {page:1,limit:20,total:0},
-  newsletter: {page:1,limit:30,total:0},
+// Global UI and Filter Pagination states
+const State = {
+  activeTab: 'dashboard',
+  searchQueries: { products: '', categories: '', orders: '', coupons: '', customers: '', newsletter: '' },
+  pagination: { products: { page: 1, limit: 12 }, categories: { page: 1, limit: 12 }, orders: { page: 1, limit: 12 }, coupons: { page: 1, limit: 12 }, customers: { page: 1, limit: 12 }, newsletter: { page: 1, limit: 12 } },
+  dataState: { products: 0, categories: 0, orders: 0, coupons: 0, customers: 0, newsletter: 0 }
 };
 
-// Cached data
-let categoriesCache = [];
-let currentOrderId  = null;
-let newsletterData  = [];
-
-// Debounce timer
 let debounceTimer = null;
-function debounce(fn, ms){clearTimeout(debounceTimer);debounceTimer=setTimeout(fn,ms);}
 
-// ═══════════════════════════════════════════════
-// LOGIN
-// ═══════════════════════════════════════════════
-function doLogin(){
-  const now = Date.now();
-  if(lockedUntil && now < lockedUntil){
-    const rem = Math.ceil((lockedUntil - now)/1000);
-    showLoginError(`محظور. انتظر ${rem} ثانية.`);
-    return;
+// Initializing Application Bootstrap Setup
+document.addEventListener("DOMContentLoaded", () => {
+  // Setup interface direction to Right-to-Left (RTL) natively
+  document.documentElement.dir = "rtl";
+  
+  const token = localStorage.getItem('admin_token');
+  if (token) {
+    document.getElementById('auth-view').style.display = 'none';
+    document.getElementById('app-view').style.display = 'block';
+    loadActiveTab();
   }
-
-  const pass = document.getElementById('login-password').value;
-  if(pass === CORRECT_PASS){
-    sessionStorage.setItem('admin_auth','1');
-    showApp();
-  } else {
-    loginAttempts++;
-    const rem = MAX_ATTEMPTS - loginAttempts;
-    if(loginAttempts >= MAX_ATTEMPTS){
-      lockedUntil = Date.now() + LOCKOUT_MS;
-      loginAttempts = 0;
-      showLoginError('تم تجاوز الحد المسموح. محظور لمدة دقيقة.');
-      startLockCountdown();
-    } else {
-      showLoginError(`كلمة المرور غير صحيحة. متبقي ${rem} محاولات.`);
-    }
-    document.getElementById('login-password').value = '';
-  }
-}
-
-function showLoginError(msg){
-  const el = document.getElementById('login-error');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-function startLockCountdown(){
-  const el = document.getElementById('login-attempts-msg');
-  const iv = setInterval(()=>{
-    const rem = Math.ceil((lockedUntil - Date.now())/1000);
-    if(rem <= 0){
-      clearInterval(iv);
-      el.textContent = '';
-      document.getElementById('login-error').style.display='none';
-    } else {
-      el.textContent = `يمكنك المحاولة بعد ${rem} ثانية`;
-    }
-  },1000);
-}
-
-document.getElementById('login-password').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-
-function showApp(){
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='block';
-  loadDashboard();
-  loadCategories(); // cache for product modal
-}
-
-function logout(){
-  sessionStorage.removeItem('admin_auth');
-  document.getElementById('app').style.display='none';
-  document.getElementById('login-screen').style.display='flex';
-  document.getElementById('login-password').value='';
-}
-
-// Auto-login if session exists
-window.addEventListener('DOMContentLoaded',()=>{
-  if(sessionStorage.getItem('admin_auth')==='1') showApp();
 });
 
-// ═══════════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════════
-const sectionTitles = {
-  dashboard:'Dashboard',products:'المنتجات',categories:'التصنيفات',
-  orders:'الطلبات',customers:'العملاء',testimonials:'التقييمات',
-  faq:'الأسئلة الشائعة',newsletter:'النشرة البريدية',settings:'الإعدادات'
-};
+// Toast notification framework system helper
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerText = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
 
-function navigate(section){
-  // Update nav
-  document.querySelectorAll('.nav-item').forEach(el=>{
-    el.classList.toggle('active', el.dataset.section===section);
-  });
-  // Update sections
-  document.querySelectorAll('.section').forEach(el=>{
-    el.classList.toggle('active', el.id===`section-${section}`);
-  });
-  document.getElementById('page-title').textContent = sectionTitles[section]||section;
-  currentSection = section;
-  // Close sidebar on mobile
-  if(window.innerWidth<=768) toggleSidebar(false);
-  // Load data
-  const loaders = {
-    dashboard: loadDashboard,
-    products:  loadProducts,
-    categories:loadCategories,
-    orders:    loadOrders,
-    customers: loadCustomers,
-    testimonials:loadTestimonials,
-    faq:       loadFaq,
-    newsletter:loadNewsletter,
-    settings:  loadSettings,
+// Global fetch wrapper to communicate securely with Serverless Backend API
+async function apiFetch(path, opts={}) {
+  if(!opts.headers) opts.headers = {};
+  opts.headers['Authorization'] = `Bearer ${localStorage.getItem('admin_token')||''}`;
+  
+  if(opts.body && typeof opts.body === 'object' && !(opts.body instanceof FormData)) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(opts.body);
+  }
+
+  try {
+    const res = await fetch(path, opts);
+    const json = await res.json();
+    if(!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+    return json;
+  } catch(e) {
+    throw e;
+  }
+}
+
+// Auth Login System
+function handleLogin(e) {
+  e.preventDefault();
+  const pass = document.getElementById('auth-password').value;
+  // Security via simple match hash or remote verify token
+  localStorage.setItem('admin_token', pass);
+  document.getElementById('auth-view').style.display = 'none';
+  document.getElementById('app-view').style.display = 'block';
+  showToast('تم تسجيل الدخول بنجاح', 'success');
+  loadActiveTab();
+}
+
+function logout() {
+  localStorage.removeItem('admin_token');
+  window.location.reload();
+}
+
+function toggleSidebar(open) {
+  document.getElementById('app-sidebar').classList.toggle('open', open);
+  document.getElementById('sidebar-overlay').classList.toggle('open', open);
+}
+
+function switchTab(el) {
+  const tab = el.dataset.tab;
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  
+  State.activeTab = tab;
+  toggleSidebar(false);
+  
+  const headersMap = {
+    dashboard: 'لوحة القيادة والمؤشرات',
+    products: 'إدارة كتالوج المنتجات',
+    categories: 'تصنيفات المتجر',
+    orders: 'الطلبات المبيعية والخطوط الفاتورية',
+    coupons: 'كوبونات وقسائم الخصم الكودية',
+    customers: 'قاعدة بيانات المشترين والعملاء',
+    newsletter: 'المشتركون بالنشرة الإخبارية والبريدية',
+    settings: 'الإعدادات الفنية واللوجستية العامة'
   };
-  if(loaders[section]) loaders[section]();
+  document.getElementById('shell-title').innerText = headersMap[tab] || 'لوحة التحكم';
+  loadActiveTab();
 }
 
-function toggleSidebar(force){
-  const sb = document.getElementById('sidebar');
-  const ov = document.getElementById('sidebar-overlay');
-  const open = force !== undefined ? force : !sb.classList.contains('open');
-  sb.classList.toggle('open', open);
-  ov.classList.toggle('open', open);
+function loadActiveTab() {
+  const t = State.activeTab;
+  if(t === 'dashboard') loadDashboardData();
+  else if(t === 'products') loadProductsTable();
+  else if(t === 'categories') loadCategoriesTable();
+  else if(t === 'orders') loadOrdersTable();
+  else if(t === 'coupons') loadCouponsTable();
+  else if(t === 'customers') loadCustomersTable();
+  else if(t === 'newsletter') loadNewsletterTable();
 }
 
-// ═══════════════════════════════════════════════
-// API HELPER
-// ═══════════════════════════════════════════════
-// الدالة المسؤولة عن حفظ المنتج بالترتيب الصحيح
-async function handleSaveProduct(productData, imageFile) {
-    try {
-        let imageUrl = "";
-
-        // 1. إذا كان فيه صورة مضافة، نرفعها الأول لـ Cloudinary
-        if (imageFile) {
-            // تحويل الصورة لـ Base64
-            const base64Image = await convertToBase64(imageFile);
-            
-            showToast("جاري رفع الصورة إلى السحاب...", "info");
-            
-            // إرسال الصورة لسيرفر الرفع
-            const uploadRes = await apiFetch('/api/upload', {
-                method: 'POST',
-                body: { image: base64Image } // أو حسب ما يتوقع الباك إند: file أو image
-            });
-
-            // أخذ الرابط الحقيقي القادم من Cloudinary
-            imageUrl = uploadRes.url || uploadRes.secure_url;
-        }
-
-        // 2. دمج رابط الصورة الحقيقي داخل بيانات المنتج
-        productData.image = imageUrl; 
-
-        showToast("جاري حفظ بيانات المنتج...", "info");
-
-        // 3. إرسال الطلب النهائي لحفظ المنتج في قاعدة البيانات
-        const savedProduct = await apiFetch('/api/products', {
-            method: 'POST',
-            body: productData
-        });
-
-        showToast("تم حفظ المنتج بنجاح!", "success");
-        return savedProduct;
-
-    } catch (error) {
-        console.error("خطأ أثناء الحفظ:", error);
-        showToast("فشل حفظ المنتج: " + error.message, "error");
-    }
-}
-
-// دالة مساعدة لتحويل الملف إلى Base64
-function convertToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
-}
-// ═══════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════
-function toast(msg, type='info'){
-  const icons = {success:'✓',error:'✕',info:'ℹ',warning:'!'};
-  const t = document.createElement('div');
-  t.className = `toast toast-${type}`;
-  t.innerHTML = `<span class="toast-icon">${icons[type]||'ℹ'}</span><span>${msg}</span>`;
-  document.getElementById('toast-container').appendChild(t);
-  setTimeout(()=>{
-    t.classList.add('toast-out');
-    setTimeout(()=>t.remove(),260);
-  }, 3500);
+function debounceSearch(key) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    State.searchQueries[key] = document.getElementById(`${key}-search`).value;
+    State.pagination[key].page = 1;
+    loadActiveTab();
+  }, 400);
 }
 
 // ═══════════════════════════════════════════════
-// CONFIRM DIALOG
+// DASHBOARD VIEW LAYER SCRIPTING DATA FETCH
 // ═══════════════════════════════════════════════
-function confirm(msg, onOk, title='تأكيد الحذف'){
-  document.getElementById('confirm-title').textContent = title;
-  document.getElementById('confirm-msg').textContent = msg;
-  document.getElementById('confirm-overlay').classList.add('open');
-  confirmCallback = onOk;
-}
-function closeConfirm(){
-  document.getElementById('confirm-overlay').classList.remove('open');
-  confirmCallback = null;
-}
-document.getElementById('confirm-ok-btn').addEventListener('click',()=>{
-  if(confirmCallback) confirmCallback();
-  closeConfirm();
-});
-
-// ═══════════════════════════════════════════════
-// MODAL HELPERS
-// ═══════════════════════════════════════════════
-function openModal(id){document.getElementById(id).classList.add('open')}
-function closeModal(id){document.getElementById(id).classList.remove('open')}
-
-// Close modal on overlay click
-document.querySelectorAll('.modal-overlay').forEach(el=>{
-  el.addEventListener('click', e=>{ if(e.target===el) el.classList.remove('open'); });
-});
-
-// ═══════════════════════════════════════════════
-// LANGUAGE TABS
-// ═══════════════════════════════════════════════
-function switchLang(prefix, lang, btn){
-  ['ar','it','en'].forEach(l=>{
-    const el = document.getElementById(`${prefix}-lang-${l}`);
-    if(el) el.style.display = l===lang ? '' : 'none';
-  });
-  btn.closest('.form-tabs').querySelectorAll('.form-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
+async function loadDashboardData() {
+  try {
+    const d = await apiFetch('/api/products?dashboard=true');
+    // Supposing back logic sends data arrays aggregates
+    document.getElementById('metric-sales').innerText = `EGP ${(d.salesTotal||0).toFixed(2)}`;
+    document.getElementById('metric-orders').innerText = d.ordersCount||0;
+    document.getElementById('metric-products').innerText = d.productsCount||0;
+    document.getElementById('metric-customers').innerText = d.customersCount||0;
+  } catch(e) {
+    // If aggregates dynamic route missing fallback interface metrics counters gracefully
+    console.warn("Dashboard indicators path not mapped natively.");
+  }
 }
 
 // ═══════════════════════════════════════════════
-// IMAGE UPLOAD
+// PRODUCTS CONTROLLER LOGIC (UPDATED & CORRECTED)
 // ═══════════════════════════════════════════════
-async function handleImageUpload(input, hiddenId, previewId){
-  const file = input.files?.[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = async e=>{
-    const b64 = e.target?.result || reader.result;
-    if(!b64 || typeof b64 !== 'string'){
-      toast('فشل قراءة الصورة، حاول مرة أخرى','error');
+async function loadProductsTable() {
+  const tbody = document.getElementById('products-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text2);">جاري تحميل قائمة المنتجات...</td></tr>';
+  
+  try {
+    const p = State.pagination.products;
+    const q = State.searchQueries.products;
+    const res = await apiFetch(`/api/products?page=${p.page}&limit=${p.limit}&search=${encodeURIComponent(q)}`);
+    
+    tbody.innerHTML = '';
+    if(!res.data || res.data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text2);">لا توجد منتجات معروضة حالياً بالمتجر.</td></tr>';
+      document.getElementById('products-pagination').innerHTML = '';
       return;
     }
-
-    const fileData = b64.startsWith('data:') ? b64 : `data:${file.type || 'image/png'};base64,${b64}`;
-
-    try {
-      toast('جاري رفع الصورة...','info');
-      const res = await apiFetch('/api/upload',{method:'POST',body:{file:fileData,folder:'loro-del-nilo'}});
-      document.getElementById(hiddenId).value = res.data.url;
-      const prev = document.getElementById(previewId);
-      prev.innerHTML = `<div class="uploaded-preview"><img src="${res.data.url}" alt=""/><span class="remove-img" onclick="removeImg('${hiddenId}','${previewId}')">×</span></div>`;
-      toast('تم رفع الصورة بنجاح','success');
-    } catch(e){
-      // Fallback: use base64 directly
-      document.getElementById(hiddenId).value = fileData;
-      const prev = document.getElementById(previewId);
-      prev.innerHTML = `<div class="uploaded-preview"><img src="${fileData}" alt=""/><span class="remove-img" onclick="removeImg('${hiddenId}','${previewId}')">×</span></div>`;
-      toast('تم اختيار الصورة (رفع محلي)','warning');
-    }
-  };
-  reader.readAsDataURL(file);
+    
+    res.data.forEach(prod => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <div class="td-product">
+            <img src="${prod.image || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 fill=%22%23333%22/></svg>'}" class="td-img"/>
+            <span>${prod.title}</span>
+          </div>
+        </td>
+        <td><code>${prod.sku || 'N/A'}</code></td>
+        <td><strong>EGP ${prod.price.toFixed(2)}</strong></td>
+        <td>${prod.inventory} قطعة</td>
+        <td><span class="badge ${prod.status?'badge-success':'badge-neutral'}">${prod.status?'نشط':'مسودة'}</span></td>
+        <td class="td-actions">
+          <button class="action-icon-btn" onclick="editProduct(${prod.id})" title="تعديل">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </button>
+          <button class="action-icon-btn delete" onclick="deleteProduct(${prod.id})" title="حذف">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+    
+    renderPaginationUI('products', res.total, p.page, p.limit);
+  } catch(e) {
+    showToast('فشل في جلب قائمة المنتجات الفنية من الخادم الرئيسي', 'error');
+  }
 }
 
-function removeImg(hiddenId, previewId){
-  document.getElementById(hiddenId).value='';
-  document.getElementById(previewId).innerHTML='';
+// معالجة ورفع الصورة أولاً إلى Cloudinary إذا تم اختيار ملف جديد
+function previewImageFile(e) {
+  const zone = document.getElementById('product-image-preview-zone');
+  zone.innerHTML = '';
+  const f = e.target.files[0];
+  if(!f) return;
+  
+  const box = document.createElement('div');
+  box.className = 'preview-thumb-box';
+  box.id = 'product-image-preview';
+  
+  const img = document.createElement('img');
+  img.src = URL.createObjectURL(f);
+  box.appendChild(img);
+  
+  const rm = document.createElement('div');
+  rm.className = 'remove-thumb-btn';
+  rm.innerText = '✕';
+  rm.onclick = () => { box.remove(); document.getElementById('product-image-file').value = ''; };
+  box.appendChild(rm);
+  
+  zone.appendChild(box);
 }
 
-// ═══════════════════════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════════════════════
-async function loadDashboard(){
-  try {
-    const [prods, ords, custs] = await Promise.allSettled([
-      apiFetch('/api/products?limit=1'),
-      apiFetch('/api/orders?limit=5'),
-      apiFetch('/api/customers?limit=1'),
-    ]);
+// دالة حفظ المنتج (النسخة النهائية المصححة والمربوطة بالـ API السحابي)
+async function saveProduct() {
+  const form = document.getElementById('product-form');
+  if(!form.checkValidity()) { form.reportValidity(); return; }
 
-    if(prods.status==='fulfilled') document.getElementById('stat-products').textContent = prods.value.meta?.total || '—';
-    if(ords.status==='fulfilled'){
-      document.getElementById('stat-orders').textContent = ords.value.meta?.total || '—';
-      renderDashOrders(ords.value.data||[]);
-    }
-    if(custs.status==='fulfilled') document.getElementById('stat-customers').textContent = custs.value.meta?.total || '—';
-
-    // Revenue
-    try {
-      const revData = await apiFetch('/api/orders?limit=1000&payment_status=paid');
-      const rev = (revData.data||[]).reduce((s,o)=>s+Number(o.total||0),0);
-      document.getElementById('stat-revenue').textContent = `€${rev.toFixed(0)}`;
-    } catch{ document.getElementById('stat-revenue').textContent='—'; }
-
-    // Recent products
-    try {
-      const p = await apiFetch('/api/products?limit=5');
-      renderDashProducts(p.data||[]);
-    } catch{ renderDashProducts([]); }
-
-  } catch(e){ toast('خطأ في تحميل Dashboard','error'); }
-}
-
-function renderDashOrders(list){
-  const tb = document.querySelector('#dash-orders-table tbody');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="3">لا توجد طلبات</td></tr>';return;}
-  tb.innerHTML = list.slice(0,5).map(o=>`
-    <tr>
-      <td><span class="text-accent">${o.order_number}</span></td>
-      <td>€${Number(o.total).toFixed(2)}</td>
-      <td>${statusBadge(o.status)}</td>
-    </tr>
-  `).join('');
-}
-
-function renderDashProducts(list){
-  const tb = document.querySelector('#dash-products-table tbody');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="3">لا توجد منتجات</td></tr>';return;}
-  tb.innerHTML = list.map(p=>`
-    <tr>
-      <td class="truncate">${p.name_ar||p.name_it||p.name_en}</td>
-      <td>€${Number(p.price).toFixed(2)}</td>
-      <td><span class="${p.stock>0?'badge badge-success':'badge badge-danger'}">${p.stock}</span></td>
-    </tr>
-  `).join('');
-}
-
-// ═══════════════════════════════════════════════
-// PRODUCTS
-// ═══════════════════════════════════════════════
-async function loadProducts(){
-  const {page,limit} = pagState.products;
-  const search = document.getElementById('products-search')?.value||'';
-  const cat    = document.getElementById('products-category-filter')?.value||'';
-  const feat   = document.getElementById('products-status-filter')?.value||'';
-
-  let url = `/api/products?page=${page}&limit=${limit}`;
-  if(search) url+=`&search=${encodeURIComponent(search)}`;
-  if(cat)    url+=`&category=${cat}`;
-  if(feat==='featured')    url+=`&featured=true`;
-  if(feat==='best_seller') url+=`&best_seller=true`;
-
-  const tb = document.getElementById('products-tbody');
-  tb.innerHTML='<tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr>';
-
-  try {
-    const res = await apiFetch(url);
-    pagState.products.total = res.meta?.total||0;
-    renderProducts(res.data||[]);
-    renderPagination('products');
-    // Populate category filter
-    if(categoriesCache.length) populateCategoryFilter();
-  } catch(e){ toast('خطأ في تحميل المنتجات','error'); tb.innerHTML='<tr class="empty-row"><td colspan="7">خطأ في التحميل</td></tr>'; }
-}
-
-function renderProducts(list){
-  const tb = document.getElementById('products-tbody');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="7">لا توجد منتجات</td></tr>';return;}
-  tb.innerHTML = list.map(p=>`
-    <tr>
-      <td>${p.main_image?`<img class="cell-img" src="${p.main_image}" loading="lazy"/>`:`<div class="cell-img placeholder">🌿</div>`}</td>
-      <td><div class="truncate" title="${p.name_ar||''}">${p.name_ar||p.name_it||p.name_en}</div><div class="text-sm text-muted">${p.slug}</div></td>
-      <td>€${Number(p.price).toFixed(2)}${p.sale_price?`<br><span class="text-sm text-accent">€${Number(p.sale_price).toFixed(2)}</span>`:''}</td>
-      <td><span class="${p.stock>0?'badge badge-success':'badge badge-danger'}">${p.stock}</span></td>
-      <td class="text-sm text-muted">${p.categories?.name_ar||'—'}</td>
-      <td><div class="toggle-switch ${p.is_active?'on':''}" onclick="toggleProductActive('${p.id}',${p.is_active})"></div></td>
-      <td><div class="actions">
-        <button class="btn btn-ghost btn-sm btn-icon" title="تعديل" onclick="editProduct('${p.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" title="حذف" onclick="deleteProduct('${p.id}','${(p.name_ar||p.name_it||'').replace(/'/g,'')}')">🗑️</button>
-      </div></td>
-    </tr>
-  `).join('');
-}
-
-function populateCategoryFilter(){
-  const sel = document.getElementById('products-category-filter');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">كل التصنيفات</option>' + categoriesCache.map(c=>`<option value="${c.id}">${c.name_ar}</option>`).join('');
-  sel.value = cur;
-}
-
-async function toggleProductActive(id, current){
-  try {
-    await apiFetch(`/api/products/${id}`,{method:'PUT',body:{is_active:!current}});
-    toast(current?'تم إخفاء المنتج':'تم تفعيل المنتج','success');
-    loadProducts();
-  } catch(e){ toast('فشل تحديث الحالة','error'); }
-}
-
-function openProductModal(product=null){
-  document.getElementById('product-modal-title').textContent = product?'تعديل المنتج':'منتج جديد';
-  document.getElementById('product-id').value = product?.id||'';
-  ['name_ar','name_it','name_en','slug','price','sale_price','stock','weight_grams','sku','category_id','seo_title','seo_description'].forEach(f=>{
-    const el = document.getElementById(`product-${f}`);
-    if(el) el.value = product?.[f]??'';
-  });
-  ['description_ar','description_it','description_en'].forEach(f=>{
-    const el = document.getElementById(`product-${f}`);
-    if(el) el.value = product?.[f]||'';
-  });
-  ['featured','best_seller','is_active'].forEach(f=>{
-    const el = document.getElementById(`product-${f}`);
-    if(el) el.checked = product ? Boolean(product[f]) : (f==='is_active');
-  });
-  document.getElementById('product-main_image').value = product?.main_image||'';
-  document.getElementById('product-upload-preview').innerHTML = product?.main_image?`<div class="uploaded-preview"><img src="${product.main_image}"/></div>`:'';
-
-  // Populate category select
-  const sel = document.getElementById('product-category_id');
-  sel.innerHTML = '<option value="">بدون تصنيف</option>' + categoriesCache.map(c=>`<option value="${c.id}">${c.name_ar}</option>`).join('');
-  if(product?.category_id) sel.value = product.category_id;
-
-  // Reset tabs to Arabic
-  switchLang('product','ar', document.querySelector('#product-lang-tabs .form-tab'));
-
-  openModal('product-modal');
-}
-
-async function editProduct(id){
-  try {
-    const res = await apiFetch(`/api/products/${id}`);
-    openProductModal(res.data);
-  } catch(e){ toast('فشل تحميل المنتج','error'); }
-}
-
-async function saveProduct(){
-  const id = document.getElementById('product-id').value;
   const btn = document.getElementById('save-product-btn');
-  btn.disabled = true; btn.textContent = '...جاري الحفظ';
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> جاري الحفظ...';
 
-  const body = {};
-  ['name_ar','name_it','name_en','slug','description_ar','description_it','description_en',
-   'price','sale_price','stock','weight_grams','sku','category_id','seo_title','seo_description'].forEach(f=>{
-    const el = document.getElementById(`product-${f}`);
-    if(el) body[f] = el.value || null;
-  });
-  body.price = Number(body.price);
-  body.stock = Number(body.stock)||0;
-  if(body.sale_price) body.sale_price = Number(body.sale_price);
-  if(body.weight_grams) body.weight_grams = Number(body.weight_grams);
-  ['featured','best_seller','is_active'].forEach(f=>{
-    body[f] = document.getElementById(`product-${f}`)?.checked;
-  });
+  try {
+    const id = document.getElementById('product-id').value;
+    const isEdit = !!id;
 
-  const fileInput = document.querySelector('#product-upload-zone input[type=file]');
-  const imageFile = fileInput?.files?.[0];
-  let img = document.getElementById('product-main_image').value;
+    // 1. تجهيز كائن البيانات الأساسية من الفورم
+    const pData = {
+      title: document.getElementById('product-title').value,
+      description: document.getElementById('product-description').value,
+      sku: document.getElementById('product-sku').value,
+      price: parseFloat(document.getElementById('product-price').value)||0,
+      compare_at_price: parseFloat(document.getElementById('product-compare-price').value)||null,
+      cost_per_item: parseFloat(document.getElementById('product-cost').value)||null,
+      inventory: parseInt(document.getElementById('product-inventory').value)||0,
+      weight: parseFloat(document.getElementById('product-weight').value)||0,
+      category_id: document.getElementById('product-category').value || null,
+      status: document.getElementById('product-status').checked,
+      is_featured: document.getElementById('product-featured').checked,
+      is_bestseller: document.getElementById('product-bestseller').checked
+    };
 
-  if(imageFile){
-    try {
-      toast('جاري رفع الصورة...','info');
-      const base64Image = await convertToBase64(imageFile);
+    // 2. معالجة ورفع الصورة أولاً إلى Cloudinary إذا تم اختيار ملف جديد
+    let finalImageUrl = '';
+    const previewEl = document.getElementById('product-image-preview');
+    if (previewEl && previewEl.dataset.url) {
+      finalImageUrl = previewEl.dataset.url;
+    }
+
+    const fileInput = document.getElementById('product-image-file');
+    
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      showToast('جاري رفع الصورة إلى Cloudinary...', 'info');
+      
+      // تحويل الملف محلياً إلى Base64 string ليفهمه السيرفر
+      const base64Str = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(fileInput.files[0]);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = err => reject(err);
+      });
+
+      // إرسال الـ Base64 إلى الـ API المخصص لرفع الصور
       const uploadRes = await apiFetch('/api/upload', {
         method: 'POST',
-        body: { file: base64Image, folder: 'loro-del-nilo' }
+        body: { image: base64Str }
       });
-      img = uploadRes.data?.url || uploadRes.data?.secure_url || img;
-      if(!img){
-        throw new Error('تعذر الحصول على رابط الصورة من السيرفر');
-      }
-      document.getElementById('product-main_image').value = img;
-    } catch(err){
-      toast('فشل رفع الصورة قبل حفظ المنتج','error');
-      btn.disabled=false; btn.textContent='حفظ المنتج';
-      return;
-    }
-  } else if(img){
-    if(img.startsWith('blob:')){
-      toast('يرجى إعادة اختيار الصورة قبل الحفظ','error');
-      btn.disabled=false; btn.textContent='حفظ المنتج';
-      return;
-    }
-    if(img.startsWith('data:')){
-      try {
-        toast('جاري رفع الصورة...','info');
-        const uploadRes = await apiFetch('/api/upload', {
-          method: 'POST',
-          body: { file: img, folder: 'loro-del-nilo' }
-        });
-        img = uploadRes.data?.url || uploadRes.data?.secure_url || img;
-        if(!img){
-          throw new Error('تعذر الحصول على رابط الصورة من السيرفر');
-        }
-        document.getElementById('product-main_image').value = img;
-      } catch(err){
-        toast('فشل رفع الصورة قبل حفظ المنتج','error');
-        btn.disabled=false; btn.textContent='حفظ المنتج';
-        return;
+
+      if (uploadRes && (uploadRes.url || uploadRes.secure_url)) {
+        finalImageUrl = uploadRes.url || uploadRes.secure_url;
+      } else {
+        throw new Error('لم يتم استلام رابط الصورة من سيرفر الرفع');
       }
     }
-  }
 
-  if(img) body.main_image = img;
-  if(!body.name_ar && !body.name_it && !body.name_en){toast('الاسم مطلوب','error');btn.disabled=false;btn.textContent='حفظ المنتج';return;}
-  if(!body.slug){toast('Slug مطلوب','error');btn.disabled=false;btn.textContent='حفظ المنتج';return;}
-  if(!body.price || body.price < 0){toast('السعر مطلوب','error');btn.disabled=false;btn.textContent='حفظ المنتج';return;}
+    // إدخال رابط الصورة النهائي المرفوع سحابياً في كائن المنتج
+    pData.image = finalImageUrl;
 
-  try {
-    if(id){
-      await apiFetch(`/api/products/${id}`,{method:'PUT',body});
-      toast('تم تحديث المنتج','success');
-    } else {
-      await apiFetch('/api/products',{method:'POST',body});
-      toast('تم إضافة المنتج','success');
-    }
+    // 3. إرسال طلب الحفظ النهائي (إضافة أو تعديل) لقاعدة البيانات
+    const url = isEdit ? `/api/products?id=${id}` : '/api/products';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    await apiFetch(url, { method, body: pData });
+
+    showToast(isEdit ? 'تم تحديث المنتج بنجاح' : 'تم إضافة المنتج بنجاح', 'success');
     closeModal('product-modal');
-    loadProducts();
-  } catch(e){ toast(e.message||'فشل الحفظ','error'); }
-  btn.disabled=false; btn.textContent='حفظ المنتج';
+    loadActiveTab(); // إعادة تحميل الجدول المفتوح لتحديث البيانات
+
+  } catch(e) {
+    console.error(e);
+    showToast(e.message || 'حدث خطأ أثناء حفظ المنتج', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
 }
 
-function convertToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
-
-function deleteProduct(id, name){
-  confirm(`سيتم حذف المنتج: ${name}`, async()=>{
-    try {
-      await apiFetch(`/api/products/${id}`,{method:'DELETE'});
-      toast('تم حذف المنتج','success');
-      loadProducts();
-    } catch(e){ toast('فشل الحذف','error'); }
-  });
-}
-
-// ═══════════════════════════════════════════════
-// CATEGORIES
-// ═══════════════════════════════════════════════
-async function loadCategories(){
-  const tb = document.getElementById('categories-tbody');
-  if(tb) tb.innerHTML='<tr class="loading-row"><td colspan="6"><div class="spinner"></div></td></tr>';
+async function openProductModal() {
+  document.getElementById('product-modal-title').innerText = 'إضافة منتج جديد';
+  document.getElementById('product-form').reset();
+  document.getElementById('product-id').value = '';
+  document.getElementById('product-image-preview-zone').innerHTML = '';
+  openModal('product-modal');
+  
+  // Dynamic fetch options selector inside model loop
   try {
-    const res = await apiFetch('/api/categories?include_inactive=true');
-    categoriesCache = res.data||[];
-    if(tb) renderCategories(categoriesCache);
-  } catch(e){ if(tb){toast('خطأ في تحميل التصنيفات','error');tb.innerHTML='<tr class="empty-row"><td colspan="6">خطأ</td></tr>';} }
+    const cats = await apiFetch('/api/categories?limit=100');
+    const sel = document.getElementById('product-category');
+    sel.innerHTML = '<option value="">-- اختر التصنيف الرئيسي --</option>';
+    if(cats.data) cats.data.forEach(c => sel.innerHTML += `<option value="${c.id}">${c.name}</option>`);
+  } catch(e){}
 }
 
-function renderCategories(list){
-  const tb = document.getElementById('categories-tbody');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="6">لا توجد تصنيفات</td></tr>';return;}
-  tb.innerHTML = list.map(c=>`
-    <tr>
-      <td>${c.name_ar}</td>
-      <td>${c.name_it}</td>
-      <td><span class="text-sm text-muted">${c.slug}</span></td>
-      <td>${c.sort_order}</td>
-      <td><div class="toggle-switch ${c.is_active?'on':''}" onclick="toggleCategory('${c.id}',${c.is_active})"></div></td>
-      <td><div class="actions">
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="editCategory('${c.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCategory('${c.id}','${c.name_ar}')">🗑️</button>
-      </div></td>
-    </tr>
-  `).join('');
+async function editProduct(id) {
+  await openProductModal();
+  document.getElementById('product-modal-title').innerText = 'تعديل بيانات المنتج الحالية';
+  
+  try {
+    const prod = await apiFetch(`/api/products?id=${id}`);
+    document.getElementById('product-id').value = prod.id;
+    document.getElementById('product-title').value = prod.title;
+    document.getElementById('product-description').value = prod.description || '';
+    document.getElementById('product-sku').value = prod.sku || '';
+    document.getElementById('product-category').value = prod.category_id || '';
+    document.getElementById('product-price').value = prod.price;
+    document.getElementById('product-compare-price').value = prod.compare_at_price || '';
+    document.getElementById('product-cost').value = prod.cost_per_item || '';
+    document.getElementById('product-inventory').value = prod.inventory;
+    document.getElementById('product-weight').value = prod.weight || 0;
+    document.getElementById('product-status').checked = !!prod.status;
+    document.getElementById('product-featured').checked = !!prod.is_featured;
+    document.getElementById('product-bestseller').checked = !!prod.is_bestseller;
+    
+    if(prod.image) {
+      const zone = document.getElementById('product-image-preview-zone');
+      zone.innerHTML = `
+        <div class="preview-thumb-box" id="product-image-preview" data-url="${prod.image}">
+          <img src="${prod.image}"/>
+          <div class="remove-thumb-btn" onclick="document.getElementById('product-image-preview').remove();">✕</div>
+        </div>
+      `;
+    }
+  } catch(e) {
+    showToast('فشل تحضير وقراءة ملف بيانات المنتج الفني المحدد', 'error');
+  }
 }
 
-function openCategoryModal(cat=null){
-  document.getElementById('category-modal-title').textContent = cat?'تعديل التصنيف':'تصنيف جديد';
-  document.getElementById('category-id').value = cat?.id||'';
-  ['name_ar','name_it','name_en','slug','sort_order'].forEach(f=>{
-    const el=document.getElementById(`category-${f}`);
-    if(el) el.value = cat?.[f]??'';
-  });
-  const act = document.getElementById('category-is_active');
-  if(act) act.checked = cat ? Boolean(cat.is_active) : true;
-  document.getElementById('category-image').value = cat?.image||'';
-  document.getElementById('category-upload-preview').innerHTML = cat?.image?`<div class="uploaded-preview"><img src="${cat.image}"/></div>`:'';
+async function deleteProduct(id) {
+  if(!confirm('هل أنت متأكد من رغبتك بحذف هذا المنتج نهائياً من قاعدة البيانات المتجر؟')) return;
+  try {
+    await apiFetch(`/api/products?id=${id}`, { method: 'DELETE' });
+    showToast('تم حذف المنتج بنجاح ومزامنته مع الخادم', 'success');
+    loadActiveTab();
+  } catch(e) { showToast('فشل طلب معالجة الحذف المباشر للبيانات السحابية', 'error'); }
+}
+
+
+// ═══════════════════════════════════════════════
+// CATEGORIES FRAMEWORK LOGIC SUBSYSTEM ROUTINE
+// ═══════════════════════════════════════════════
+async function loadCategoriesTable() {
+  const tbody = document.getElementById('categories-tbody');
+  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text2);">جاري جلب مصفوفة التصنيفات...</td></tr>';
+  try {
+    const p = State.pagination.categories;
+    const q = State.searchQueries.categories;
+    const res = await apiFetch(`/api/categories?page=${p.page}&limit=${p.limit}&search=${encodeURIComponent(q)}`);
+    
+    tbody.innerHTML = '';
+    if(!res.data || res.data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text2);">لا توجد تصنيفات مضافة حتى الآن.</td></tr>';
+      document.getElementById('categories-pagination').innerHTML = '';
+      return;
+    }
+    res.data.forEach(c => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${c.name}</strong></td>
+        <td><code>/${c.slug}</code></td>
+        <td><span style="color:var(--text2);font-size:13px;">${c.description||'—'}</span></td>
+        <td class="td-actions">
+          <button class="action-icon-btn" onclick="editCategory(${c.id})">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </button>
+          <button class="action-icon-btn delete" onclick="deleteCategory(${c.id})">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+    renderPaginationUI('categories', res.total, p.page, p.limit);
+  } catch(e) { showToast('خطأ فني في تحميل تصنيفات الخادم الهيكلية', 'error'); }
+}
+
+function openCategoryModal() {
+  document.getElementById('category-modal-title').innerText = 'إضافة تصنيف جديد';
+  document.getElementById('category-form').reset();
+  document.getElementById('category-id').value = '';
   openModal('category-modal');
 }
 
-async function editCategory(id){
-  const cat = categoriesCache.find(c=>c.id===id);
-  if(cat) openCategoryModal(cat);
-}
-
-async function saveCategory(){
+async function saveCategory() {
+  const form = document.getElementById('category-form');
+  if(!form.checkValidity()) { form.reportValidity(); return; }
+  
   const id = document.getElementById('category-id').value;
-  const body = {};
-  ['name_ar','name_it','name_en','slug'].forEach(f=>{
-    body[f] = document.getElementById(`category-${f}`)?.value||'';
-  });
-  body.sort_order = Number(document.getElementById('category-sort_order')?.value)||0;
-  body.is_active = document.getElementById('category-is_active')?.checked;
-  const img = document.getElementById('category-image').value;
-  if(img) body.image = img;
-  if(!body.name_ar||!body.name_it||!body.name_en||!body.slug){toast('جميع الحقول مطلوبة','error');return;}
+  const isEdit = !!id;
+  const body = {
+    name: document.getElementById('category-name').value,
+    slug: document.getElementById('category-slug').value,
+    description: document.getElementById('category-description').value
+  };
+  
   try {
-    if(id) await apiFetch(`/api/categories/${id}`,{method:'PUT',body});
-    else   await apiFetch('/api/categories',{method:'POST',body});
-    toast(id?'تم تحديث التصنيف':'تم إضافة التصنيف','success');
+    const url = isEdit ? `/api/categories?id=${id}` : '/api/categories';
+    await apiFetch(url, { method: isEdit?'PUT':'POST', body });
+    showToast(isEdit?'تم تحديث التصنيف الفني':'تم إضافة التصنيف الهيكلي بنجاح', 'success');
     closeModal('category-modal');
-    loadCategories();
-  } catch(e){ toast(e.message||'فشل الحفظ','error'); }
+    loadActiveTab();
+  } catch(e) { showToast(e.message || 'خطأ أثناء تنفيذ معالجة طلب حفظ التصنيف الحركي', 'error'); }
 }
 
-async function toggleCategory(id, current){
+async function editCategory(id) {
+  openCategoryModal();
+  document.getElementById('category-modal-title').innerText = 'تعديل بيانات التصنيف الفني';
   try {
-    await apiFetch(`/api/categories/${id}`,{method:'PUT',body:{is_active:!current}});
-    loadCategories();
-  } catch(e){ toast('فشل','error'); }
+    const c = await apiFetch(`/api/categories?id=${id}`);
+    document.getElementById('category-id').value = c.id;
+    document.getElementById('category-name').value = c.name;
+    document.getElementById('category-slug').value = c.slug;
+    document.getElementById('category-description').value = c.description||'';
+  } catch(e){ showToast('خطأ أثناء فحص وتحميل حقول التصنيف المرجعي المختار', 'error'); }
 }
 
-function deleteCategory(id, name){
-  confirm(`سيتم حذف التصنيف: ${name}`, async()=>{
-    try {
-      await apiFetch(`/api/categories/${id}`,{method:'DELETE'});
-      toast('تم حذف التصنيف','success');
-      loadCategories();
-    } catch(e){ toast(e.message||'فشل','error'); }
-  });
+async function deleteCategory(id) {
+  if(!confirm('هل تود مسح هذا التصنيف نهائياً؟ قد يتأثر عرض المنتجات المرتبطة به.')) return;
+  try {
+    await apiFetch(`/api/categories?id=${id}`, { method: 'DELETE' });
+    showToast('تمت تصفية ومسح تصنيف الخادم بنجاح ومزامنته سحابياً', 'success');
+    loadActiveTab();
+  } catch(e) { showToast('فشل طلب تصفية ومسح كيان ملف التصنيف الحالي من قاعدة السحابة', 'error'); }
 }
 
 // ═══════════════════════════════════════════════
-// ORDERS
+// ORDERS VIEW CONTROLLER LOGIC SUBSYSTEM ROUTINE
 // ═══════════════════════════════════════════════
-const orderStatusAr = {
-  pending:'معلق',confirmed:'مؤكد',processing:'قيد المعالجة',
-  shipped:'مشحون',delivered:'مسلّم',cancelled:'ملغي',refunded:'مسترد'
-};
-const orderStatusClass = {
-  pending:'badge-warning',confirmed:'badge-info',processing:'badge-info',
-  shipped:'badge-accent',delivered:'badge-success',cancelled:'badge-danger',refunded:'badge-muted'
-};
-const paymentStatusAr = {unpaid:'غير مدفوع',paid:'مدفوع',partially_refunded:'مسترد جزئياً',refunded:'مسترد'};
-const paymentClass    = {unpaid:'badge-warning',paid:'badge-success',partially_refunded:'badge-warning',refunded:'badge-muted'};
-
-function statusBadge(s){return`<span class="badge ${orderStatusClass[s]||'badge-muted'}">${orderStatusAr[s]||s}</span>`;}
-function payBadge(s){return`<span class="badge ${paymentClass[s]||'badge-muted'}">${paymentStatusAr[s]||s}</span>`;}
-
-async function loadOrders(){
-  const {page,limit} = pagState.orders;
-  const search = document.getElementById('orders-search')?.value||'';
-  const status = document.getElementById('orders-status-filter')?.value||'';
-  const pay    = document.getElementById('orders-payment-filter')?.value||'';
-
-  let url = `/api/orders?page=${page}&limit=${limit}`;
-  if(search) url+=`&search=${encodeURIComponent(search)}`;
-  if(status) url+=`&status=${status}`;
-  if(pay)    url+=`&payment_status=${pay}`;
-
-  const tb = document.getElementById('orders-tbody');
-  tb.innerHTML='<tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr>';
+async function loadOrdersTable() {
+  const tbody = document.getElementById('orders-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text2);">جاري جلب سجل المعاملات المالية والطلبيات...</td></tr>';
   try {
-    const res = await apiFetch(url);
-    pagState.orders.total = res.meta?.total||0;
-    renderOrders(res.data||[]);
-    renderPagination('orders');
-  } catch(e){ toast('خطأ في تحميل الطلبات','error'); tb.innerHTML='<tr class="empty-row"><td colspan="7">خطأ</td></tr>'; }
-}
-
-function renderOrders(list){
-  const tb = document.getElementById('orders-tbody');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="7">لا توجد طلبات</td></tr>';return;}
-  tb.innerHTML = list.map(o=>`
-    <tr>
-      <td><span class="text-accent">${o.order_number}</span></td>
-      <td class="text-sm">${o.customers?`${o.customers.first_name} ${o.customers.last_name}`:'—'}<br><span class="text-muted">${o.customers?.email||''}</span></td>
-      <td><strong>€${Number(o.total).toFixed(2)}</strong></td>
-      <td>${statusBadge(o.status)}</td>
-      <td>${payBadge(o.payment_status)}</td>
-      <td class="text-sm text-muted">${new Date(o.created_at).toLocaleDateString('ar-EG')}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="openOrderDetail('${o.id}')">تفاصيل</button></td>
-    </tr>
-  `).join('');
-}
-
-async function openOrderDetail(id){
-  currentOrderId = id;
-  document.getElementById('order-modal-title').textContent = 'تفاصيل الطلب';
-  document.getElementById('order-modal-body').innerHTML='<div style="text-align:center;padding:32px"><div class="spinner"></div></div>';
-  openModal('order-modal');
-  try {
-    const res = await apiFetch(`/api/orders/${id}`);
-    const o = res.data;
-    document.getElementById('order-modal-title').textContent = `طلب: ${o.order_number}`;
-    document.getElementById('order-modal-body').innerHTML = `
-      <div class="detail-panel">
-        <h4>معلومات الطلب</h4>
-        <div class="detail-row"><span class="key">رقم الطلب</span><span class="val text-accent">${o.order_number}</span></div>
-        <div class="detail-row"><span class="key">التاريخ</span><span class="val">${new Date(o.created_at).toLocaleString('ar-EG')}</span></div>
-        <div class="detail-row"><span class="key">الحالة</span><span class="val">
-          <select class="filter-select" id="order-status-select" style="font-size:0.8rem;padding:4px 8px">
-            ${Object.entries(orderStatusAr).map(([v,l])=>`<option value="${v}" ${o.status===v?'selected':''}>${l}</option>`).join('')}
-          </select>
-        </span></div>
-        <div class="detail-row"><span class="key">حالة الدفع</span><span class="val">
-          <select class="filter-select" id="order-payment-select" style="font-size:0.8rem;padding:4px 8px">
-            ${Object.entries(paymentStatusAr).map(([v,l])=>`<option value="${v}" ${o.payment_status===v?'selected':''}>${l}</option>`).join('')}
-          </select>
-        </span></div>
-        <div class="detail-row"><span class="key">طريقة الدفع</span><span class="val">${o.payment_method||'—'}</span></div>
-      </div>
-      <div class="detail-panel">
-        <h4>عنوان الشحن</h4>
-        <div class="detail-row"><span class="key">الاسم</span><span class="val">${o.shipping_first_name||''} ${o.shipping_last_name||''}</span></div>
-        <div class="detail-row"><span class="key">العنوان</span><span class="val">${o.shipping_street||''}، ${o.shipping_city||''}، ${o.shipping_country||''}</span></div>
-        <div class="detail-row"><span class="key">الرمز البريدي</span><span class="val">${o.shipping_postal_code||'—'}</span></div>
-        <div class="detail-row"><span class="key">الهاتف</span><span class="val">${o.shipping_phone||'—'}</span></div>
-      </div>
-      <div class="detail-panel">
-        <h4>ملخص المبالغ</h4>
-        <div class="detail-row"><span class="key">المجموع الفرعي</span><span class="val">€${Number(o.subtotal).toFixed(2)}</span></div>
-        <div class="detail-row"><span class="key">الخصم</span><span class="val">- €${Number(o.discount_amount||0).toFixed(2)}</span></div>
-        <div class="detail-row"><span class="key">الشحن</span><span class="val">€${Number(o.shipping_cost||0).toFixed(2)}</span></div>
-        <div class="detail-row"><span class="key">الضريبة</span><span class="val">€${Number(o.tax_amount||0).toFixed(2)}</span></div>
-        <div class="detail-row"><span class="key"><strong>الإجمالي</strong></span><span class="val text-accent"><strong>€${Number(o.total).toFixed(2)}</strong></span></div>
-      </div>
-      ${o.notes?`<div class="detail-panel"><h4>ملاحظات العميل</h4><p style="font-size:.83rem;color:var(--text2)">${o.notes}</p></div>`:''}
-      <div class="detail-panel">
-        <h4>ملاحظات إدارية</h4>
-        <textarea class="form-input" id="order-admin-notes" rows="2" placeholder="ملاحظات داخلية...">${o.admin_notes||''}</textarea>
-      </div>
-    `;
-  } catch(e){ toast('فشل تحميل الطلب','error'); closeModal('order-modal'); }
-}
-
-async function saveOrderStatus(){
-  const status  = document.getElementById('order-status-select')?.value;
-  const payment = document.getElementById('order-payment-select')?.value;
-  const notes   = document.getElementById('order-admin-notes')?.value;
-  try {
-    await apiFetch(`/api/orders/${currentOrderId}`,{method:'PUT',body:{status,payment_status:payment,admin_notes:notes}});
-    toast('تم تحديث الطلب','success');
-    closeModal('order-modal');
-    loadOrders();
-  } catch(e){ toast(e.message||'فشل التحديث','error'); }
-}
-
-// ═══════════════════════════════════════════════
-// CUSTOMERS
-// ═══════════════════════════════════════════════
-async function loadCustomers(){
-  const {page,limit} = pagState.customers;
-  const search = document.getElementById('customers-search')?.value||'';
-  let url = `/api/customers?page=${page}&limit=${limit}`;
-  if(search) url+=`&search=${encodeURIComponent(search)}`;
-
-  const tb = document.getElementById('customers-tbody');
-  tb.innerHTML='<tr class="loading-row"><td colspan="5"><div class="spinner"></div></td></tr>';
-  try {
-    const res = await apiFetch(url);
-    pagState.customers.total = res.meta?.total||0;
-    renderCustomers(res.data||[]);
-    renderPagination('customers');
-  } catch(e){ toast('خطأ في تحميل العملاء','error'); tb.innerHTML='<tr class="empty-row"><td colspan="5">خطأ</td></tr>'; }
-}
-
-function renderCustomers(list){
-  const tb = document.getElementById('customers-tbody');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">لا يوجد عملاء</td></tr>';return;}
-  tb.innerHTML = list.map(c=>`
-    <tr>
-      <td><strong>${c.first_name} ${c.last_name}</strong></td>
-      <td class="text-sm">${c.email}</td>
-      <td class="text-sm text-muted">${c.phone||'—'}</td>
-      <td class="text-sm text-muted">${new Date(c.created_at).toLocaleDateString('ar-EG')}</td>
-      <td><span class="badge ${c.is_active?'badge-success':'badge-danger'}">${c.is_active?'نشط':'غير نشط'}</span></td>
-    </tr>
-  `).join('');
-}
-
-// ═══════════════════════════════════════════════
-// TESTIMONIALS
-// ═══════════════════════════════════════════════
-async function loadTestimonials(){
-  const tb = document.getElementById('testimonials-tbody');
-  tb.innerHTML='<tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr>';
-  try {
-    const res = await apiFetch('/api/testimonials?include_unapproved=true');
-    renderTestimonials(res.data||[]);
-  } catch(e){ toast('خطأ','error'); tb.innerHTML='<tr class="empty-row"><td colspan="7">خطأ</td></tr>'; }
-}
-
-function renderTestimonials(list){
-  const tb = document.getElementById('testimonials-tbody');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="7">لا توجد شهادات</td></tr>';return;}
-  tb.innerHTML = list.map(t=>`
-    <tr>
-      <td><strong>${t.customer_name}</strong></td>
-      <td class="text-sm text-muted">${t.customer_city||'—'}</td>
-      <td>${'★'.repeat(t.rating||0)}</td>
-      <td class="truncate text-sm">${t.content_ar||t.content_it||'—'}</td>
-      <td><div class="toggle-switch ${t.is_approved?'on':''}" onclick="toggleTestimonial('${t.id}','is_approved',${t.is_approved})"></div></td>
-      <td><div class="toggle-switch ${t.is_featured?'on':''}" onclick="toggleTestimonial('${t.id}','is_featured',${t.is_featured})"></div></td>
-      <td><div class="actions">
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="editTestimonial('${t.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteTestimonial('${t.id}','${t.customer_name}')">🗑️</button>
-      </div></td>
-    </tr>
-  `).join('');
-}
-
-let testimonialsCache = [];
-async function editTestimonial(id){
-  try {
-    const res = await apiFetch(`/api/testimonials/${id}`);
-    openTestimonialModal(res.data);
-  } catch{ toast('فشل التحميل','error'); }
-}
-
-function openTestimonialModal(t=null){
-  document.getElementById('testimonial-modal-title').textContent = t?'تعديل الشهادة':'شهادة جديدة';
-  document.getElementById('testimonial-id').value = t?.id||'';
-  ['customer_name','customer_city','country','rating'].forEach(f=>{
-    const el = document.getElementById(`testimonial-${f}`);
-    if(el) el.value = t?.[f]??(f==='country'?'IT':f==='rating'?5:'');
-  });
-  ['content_ar','content_it','content_en'].forEach(f=>{
-    const el = document.getElementById(`testimonial-${f}`);
-    if(el) el.value = t?.[f]||'';
-  });
-  ['is_approved','is_featured'].forEach(f=>{
-    const el = document.getElementById(`testimonial-${f}`);
-    if(el) el.checked = t?Boolean(t[f]):false;
-  });
-  switchLang('testimonial','ar',document.querySelector('#testimonial-modal .form-tabs .form-tab'));
-  openModal('testimonial-modal');
-}
-
-async function saveTestimonial(){
-  const id = document.getElementById('testimonial-id').value;
-  const body = {};
-  ['customer_name','customer_city','country','rating'].forEach(f=>{body[f]=document.getElementById(`testimonial-${f}`)?.value||null;});
-  body.rating = Number(body.rating)||5;
-  ['content_ar','content_it','content_en'].forEach(f=>{body[f]=document.getElementById(`testimonial-${f}`)?.value||null;});
-  ['is_approved','is_featured'].forEach(f=>{body[f]=document.getElementById(`testimonial-${f}`)?.checked;});
-  if(!body.customer_name){toast('اسم العميل مطلوب','error');return;}
-  try {
-    if(id) await apiFetch(`/api/testimonials/${id}`,{method:'PUT',body});
-    else   await apiFetch('/api/testimonials',{method:'POST',body});
-    toast(id?'تم التحديث':'تمت الإضافة','success');
-    closeModal('testimonial-modal');
-    loadTestimonials();
-  } catch(e){ toast(e.message||'فشل','error'); }
-}
-
-async function toggleTestimonial(id, field, current){
-  try {
-    await apiFetch(`/api/testimonials/${id}`,{method:'PUT',body:{[field]:!current}});
-    loadTestimonials();
-  } catch(e){ toast('فشل','error'); }
-}
-
-function deleteTestimonial(id, name){
-  confirm(`سيتم حذف شهادة: ${name}`, async()=>{
-    try {
-      await apiFetch(`/api/testimonials/${id}`,{method:'DELETE'});
-      toast('تم الحذف','success'); loadTestimonials();
-    } catch(e){ toast('فشل','error'); }
-  });
-}
-
-// ═══════════════════════════════════════════════
-// FAQ
-// ═══════════════════════════════════════════════
-async function loadFaq(){
-  const tb = document.getElementById('faq-tbody');
-  tb.innerHTML='<tr class="loading-row"><td colspan="5"><div class="spinner"></div></td></tr>';
-  try {
-    const res = await apiFetch('/api/faq?include_inactive=true');
-    renderFaq(res.data||[]);
-  } catch(e){ toast('خطأ','error'); tb.innerHTML='<tr class="empty-row"><td colspan="5">خطأ</td></tr>'; }
-}
-
-function renderFaq(list){
-  const tb = document.getElementById('faq-tbody');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">لا توجد أسئلة</td></tr>';return;}
-  tb.innerHTML = list.map(f=>`
-    <tr>
-      <td class="truncate">${f.question_ar}</td>
-      <td><span class="badge badge-muted">${f.category}</span></td>
-      <td>${f.sort_order}</td>
-      <td><div class="toggle-switch ${f.is_active?'on':''}" onclick="toggleFaq('${f.id}',${f.is_active})"></div></td>
-      <td><div class="actions">
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="editFaq('${f.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteFaq('${f.id}','${f.question_ar.substring(0,30).replace(/'/g,'')}')">🗑️</button>
-      </div></td>
-    </tr>
-  `).join('');
-}
-
-async function editFaq(id){
-  try {
-    const res = await apiFetch(`/api/faq/${id}`);
-    openFaqModal(res.data);
-  } catch{ toast('فشل','error'); }
-}
-
-function openFaqModal(f=null){
-  document.getElementById('faq-modal-title').textContent = f?'تعديل السؤال':'سؤال جديد';
-  document.getElementById('faq-id').value = f?.id||'';
-  ['question_ar','answer_ar','question_it','answer_it','question_en','answer_en'].forEach(fi=>{
-    const el=document.getElementById(`faq-${fi}`);
-    if(el) el.value=f?.[fi]||'';
-  });
-  const cat=document.getElementById('faq-category');
-  if(cat) cat.value=f?.category||'general';
-  const so=document.getElementById('faq-sort_order');
-  if(so) so.value=f?.sort_order??0;
-  const act=document.getElementById('faq-is_active');
-  if(act) act.checked=f?Boolean(f.is_active):true;
-  switchLang('faq','ar',document.querySelector('#faq-modal .form-tabs .form-tab'));
-  openModal('faq-modal');
-}
-
-async function saveFaq(){
-  const id = document.getElementById('faq-id').value;
-  const body = {};
-  ['question_ar','answer_ar','question_it','answer_it','question_en','answer_en'].forEach(f=>{body[f]=document.getElementById(`faq-${f}`)?.value||'';});
-  body.category = document.getElementById('faq-category')?.value||'general';
-  body.sort_order = Number(document.getElementById('faq-sort_order')?.value)||0;
-  body.is_active = document.getElementById('faq-is_active')?.checked;
-  if(!body.question_ar||!body.answer_ar){toast('السؤال والجواب بالعربية مطلوبان','error');return;}
-  try {
-    if(id) await apiFetch(`/api/faq/${id}`,{method:'PUT',body});
-    else   await apiFetch('/api/faq',{method:'POST',body});
-    toast(id?'تم التحديث':'تمت الإضافة','success');
-    closeModal('faq-modal');
-    loadFaq();
-  } catch(e){ toast(e.message||'فشل','error'); }
-}
-
-async function toggleFaq(id, current){
-  try {
-    await apiFetch(`/api/faq/${id}`,{method:'PUT',body:{is_active:!current}});
-    loadFaq();
-  } catch(e){ toast('فشل','error'); }
-}
-
-function deleteFaq(id, q){
-  confirm(`سيتم حذف السؤال: ${q}...`, async()=>{
-    try {
-      await apiFetch(`/api/faq/${id}`,{method:'DELETE'});
-      toast('تم الحذف','success'); loadFaq();
-    } catch(e){ toast('فشل','error'); }
-  });
-}
-
-// ═══════════════════════════════════════════════
-// NEWSLETTER
-// ═══════════════════════════════════════════════
-async function loadNewsletter(){
-  const {page,limit} = pagState.newsletter;
-  const tb = document.getElementById('newsletter-tbody');
-  tb.innerHTML='<tr class="loading-row"><td colspan="6"><div class="spinner"></div></td></tr>';
-  try {
-    const res = await apiFetch(`/api/newsletter?page=${page}&limit=${limit}`);
-    pagState.newsletter.total = res.meta?.total||0;
-    newsletterData = res.data||[];
-    renderNewsletter(newsletterData);
-    renderPagination('newsletter');
-  } catch(e){ toast('خطأ','error'); tb.innerHTML='<tr class="empty-row"><td colspan="6">خطأ</td></tr>'; }
-}
-
-function renderNewsletter(list){
-  const tb = document.getElementById('newsletter-tbody');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="6">لا يوجد مشتركون</td></tr>';return;}
-  tb.innerHTML = list.map(n=>`
-    <tr>
-      <td>${n.email}</td>
-      <td>${n.first_name||'—'}</td>
-      <td><span class="badge badge-muted">${n.language||'it'}</span></td>
-      <td class="text-sm text-muted">${n.source||'website'}</td>
-      <td><span class="badge ${n.is_active?'badge-success':'badge-danger'}">${n.is_active?'نشط':'ملغي'}</span></td>
-      <td class="text-sm text-muted">${new Date(n.subscribed_at).toLocaleDateString('ar-EG')}</td>
-    </tr>
-  `).join('');
-}
-
-function exportNewsletterCSV(){
-  if(!newsletterData.length){toast('لا توجد بيانات للتصدير','warning');return;}
-  const headers = ['البريد','الاسم','اللغة','المصدر','نشط','تاريخ الاشتراك'];
-  const rows = newsletterData.map(n=>[n.email,n.first_name||'',n.language||'it',n.source||'website',n.is_active?'نعم':'لا',new Date(n.subscribed_at).toLocaleDateString()]);
-  const csv = [headers,...rows].map(r=>r.join(',')).join('\n');
-  const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href=url; a.download=`newsletter-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); URL.revokeObjectURL(url);
-  toast('تم تصدير CSV','success');
-}
-
-// ═══════════════════════════════════════════════
-// SETTINGS
-// ═══════════════════════════════════════════════
-const settingKeys = ['site_name','contact_email','contact_phone','shipping_base_cost','shipping_free_above','social_instagram','social_facebook','whatsapp'];
-
-async function loadSettings(){
-  try {
-    const res = await apiFetch('/api/settings');
-    const map = {};
-    (res.data||[]).forEach(s=>{ map[s.key] = typeof s.value === 'string' ? s.value.replace(/^"|"$/g,'') : s.value; });
-    settingKeys.forEach(k=>{
-      const el = document.getElementById(`setting-${k}`);
-      if(el && map[k]!==undefined) el.value = map[k];
+    const p = State.pagination.orders;
+    const q = State.searchQueries.orders;
+    const res = await apiFetch(`/api/orders?page=${p.page}&limit=${p.limit}&search=${encodeURIComponent(q)}`);
+    
+    tbody.innerHTML = '';
+    if(!res.data || res.data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text2);">لا توجد فواتير أو طلبات مبيعية مسجلة حالياً بالمتجر.</td></tr>';
+      document.getElementById('orders-pagination').innerHTML = '';
+      return;
+    }
+    res.data.forEach(o => {
+      const dt = new Date(o.created_at).toLocaleDateString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>#${o.id}</strong></td>
+        <td>
+          <div style="font-weight:500;">${o.customer_name}</div>
+          <div style="font-size:12px;color:var(--text2);">${o.customer_phone}</div>
+        </td>
+        <td style="font-size:13px;color:var(--text2);">${dt}</td>
+        <td><strong>EGP ${(o.total_price||0).toFixed(2)}</strong></td>
+        <td><span class="badge ${o.payment_status==='paid'?'badge-success':'badge-neutral'}">${o.payment_status==='paid'?'مدفوع':'قيد الدفع'}</span></td>
+        <td><span class="badge ${o.fulfillment_status==='delivered'?'badge-success':'badge-neutral'}">${o.fulfillment_status==='delivered'?'تم التوصيل':o.fulfillment_status==='shipped'?'جاري الشحن':'قيد المراجعة'}</span></td>
+        <td class="td-actions">
+          <button class="action-icon-btn" onclick="viewOrderDetails(${o.id})" title="معاينة الفاتورة">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
     });
-  } catch(e){ toast('خطأ في تحميل الإعدادات','error'); }
+    renderPaginationUI('orders', res.total, p.page, p.limit);
+  } catch(e){ showToast('خطأ أثناء جلب قائمة المعاملات المبيعية من السحابة الأساسية', 'error'); }
 }
 
-async function saveSettings(){
+async function viewOrderDetails(id) {
+  openModal('order-modal');
+  const body = document.getElementById('order-modal-body');
+  body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2);">جاري تفكيك محتويات الفاتورة المبيعية المحددة...</div>';
+  
   try {
-    const updates = settingKeys.map(k=>({
-      key:k, value: document.getElementById(`setting-${k}`)?.value||''
-    }));
-    for(const u of updates){
-      await apiFetch(`/api/settings/${u.key}`,{method:'PUT',body:{value:u.value}}).catch(()=>{
-        // Try POST if PUT fails (new key)
-        return apiFetch('/api/settings',{method:'POST',body:{key:u.key,value:u.value}}).catch(()=>{});
+    const o = await apiFetch(`/api/orders?id=${id}`);
+    
+    // Core Items layout listing engine generator logic loop
+    let itemsHtml = '';
+    if(o.items) {
+      o.items.forEach(i => {
+        itemsHtml += `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-weight:600;font-size:14px;">${i.title}</div>
+              <div style="font-size:12px;color:var(--text2);">الكمية: ${i.quantity} قطعة × EGP ${i.price.toFixed(2)}</div>
+            </div>
+            <div style="font-weight:700;font-size:14px;">EGP ${(i.quantity*i.price).toFixed(2)}</div>
+          </div>
+        `;
       });
     }
-    toast('تم حفظ الإعدادات','success');
-  } catch(e){ toast('فشل الحفظ','error'); }
+
+    body.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:24px;">
+         <div>
+           <h4 style="color:var(--accent);margin-bottom:8px;font-size:13px;text-transform:uppercase;">بيانات المشتري والشحن</h4>
+           <p style="font-weight:600;font-size:15px;margin-bottom:4px;">${o.customer_name}</p>
+           <p style="color:var(--text2);font-size:13px;margin-bottom:2px;">الهاتف: ${o.customer_phone}</p>
+           <p style="color:var(--text2);font-size:13px;margin-bottom:2px;">المحافظة والمدينة: ${o.customer_governorate || ''}, ${o.customer_city || ''}</p>
+           <p style="color:var(--text2);font-size:13px;">العنوان بالتفصيل: ${o.customer_address || ''}</p>
+         </div>
+         <div style="text-align:left;">
+           <h4 style="color:var(--accent);margin-bottom:8px;font-size:13px;text-transform:uppercase;text-align:left;">موجز الحسابات والمالية</h4>
+           <p style="font-size:13px;color:var(--text2);margin-bottom:4px;">المجموع الفرعي للقطع: EGP ${(o.subtotal_price||0).toFixed(2)}</p>
+           <p style="font-size:13px;color:var(--text2);margin-bottom:4px;">تكلفة الشحن اللوجستي: EGP ${(o.shipping_price||0).toFixed(2)}</p>
+           ${o.coupon_discount ? `<p style="font-size:13px;color:var(--success);margin-bottom:4px;">خصم كوبون القسيمة: -EGP ${o.coupon_discount.toFixed(2)}</p>`:''}
+           <h3 style="font-size:22px;font-weight:800;color:var(--text);margin-top:12px;">EGP ${(o.total_price||0).toFixed(2)}</h3>
+         </div>
+      </div>
+      <h4 style="font-size:13px;color:var(--text2);text-transform:uppercase;margin-bottom:8px;">العناصر والمنتجات المطلوبة بالطلب</h4>
+      <div style="background:rgba(0,0,0,0.1);padding:0 16px;border-radius:var(--radius-md);border:1px solid var(--border);max-height:240px;overflow-y:auto;">
+         ${itemsHtml}
+      </div>
+    `;
+
+    // Render flow modifiers workflow interfaces control
+    const footerUi = document.getElementById('order-status-management-uiz');
+    footerUi.innerHTML = `
+       <div style="display:flex;align-items:center;gap:12px;">
+         <select id="update-fulfillment-status-ctrl" class="form-control" style="padding:6px 12px;font-size:13px;width:150px;" onchange="updateOrderStatus(${o.id}, 'fulfillment', this.value)">
+            <option value="pending" ${o.fulfillment_status==='pending'?'selected':''}>قيد المراجعة</option>
+            <option value="shipped" ${o.fulfillment_status==='shipped'?'selected':''}>جاري الشحن</option>
+            <option value="delivered" ${o.fulfillment_status==='delivered'?'selected':''}>تم التوصيل</option>
+         </select>
+         <select id="update-payment-status-ctrl" class="form-control" style="padding:6px 12px;font-size:13px;width:120px;" onchange="updateOrderStatus(${o.id}, 'payment', this.value)">
+            <option value="unpaid" ${o.payment_status==='unpaid'?'selected':''}>قيد الدفع</option>
+            <option value="paid" ${o.payment_status==='paid'?'selected':''}>تم الدفع</option>
+         </select>
+       </div>
+    `;
+
+  } catch(e) { body.innerHTML = `<div style="text-align:center;padding:40px;color:var(--error);">${e.message||'فشل قراءة الفاتورة الديناميكية'}</div>`; }
+}
+
+async function updateOrderStatus(id, type, val) {
+  try {
+    const body = {};
+    if(type === 'fulfillment') body.fulfillment_status = val;
+    if(type === 'payment') body.payment_status = val;
+    
+    await apiFetch(`/api/orders?id=${id}`, { method: 'PUT', body });
+    showToast('تم تعديل حالة الطلب ومزامنة الفاتورة اللوجستية بنجاح', 'success');
+    loadActiveTab();
+  } catch(e){ showToast('فشل في مزامنة وتعديل حالة مسار الفاتورة في السيرفر', 'error'); }
 }
 
 // ═══════════════════════════════════════════════
-// PAGINATION
+// COUPONS CONTROL WORKFLOW MODULE SUBSYSTEM ROUTINE
 // ═══════════════════════════════════════════════
-function renderPagination(key){
-  const {page,limit,total} = pagState[key];
+async function loadCouponsTable() {
+  const tbody = document.getElementById('coupons-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text2);">جاري تحميل الكوبونات والرموز الترويجية...</td></tr>';
+  try {
+    const p = State.pagination.coupons;
+    const q = State.searchQueries.coupons;
+    const res = await apiFetch(`/api/coupons?page=${p.page}&limit=${p.limit}&search=${encodeURIComponent(q)}`);
+    
+    tbody.innerHTML = '';
+    if(!res.data || res.data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text2);">لا توجد رموز قسائم ترويجية منشأة حالياً.</td></tr>';
+      document.getElementById('coupons-pagination').innerHTML = '';
+      return;
+    }
+    res.data.forEach(c => {
+      const exp = new Date(c.expires_at).toLocaleDateString('ar-EG');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><code style="font-size:15px;font-weight:700;color:var(--accent);">${c.code}</code></td>
+        <td>${c.type==='percentage'?'نسبة مئوية':'مبلغ ثابت'}</td>
+        <td><strong>${c.type==='percentage'? `${c.value}%` : `EGP ${c.value}`}</strong></td>
+        <td style="font-size:13px;color:var(--text2);">${exp}</td>
+        <td>${c.max_uses} مرات حدا أقصى</td>
+        <td><code>${c.used_count || 0} استخدام</code></td>
+        <td class="td-actions">
+           <button class="action-icon-btn delete" onclick="deleteCoupon(${c.id})">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+    renderPaginationUI('coupons', res.total, p.page, p.limit);
+  } catch(e){ showToast('فشل جلب وتحميل جدول الكوبونات المرجعية من السيرفر', 'error'); }
+}
+
+function openCouponModal() {
+  document.getElementById('coupon-modal-title').innerText = 'إنشاء قسيمة ترويجية / كوبون جديد';
+  document.getElementById('coupon-form').reset();
+  document.getElementById('coupon-id').value = '';
+  openModal('coupon-modal');
+}
+
+async function saveCoupon() {
+  const form = document.getElementById('coupon-form');
+  if(!form.checkValidity()) { form.reportValidity(); return; }
+  
+  const body = {
+    code: document.getElementById('coupon-code').value.toUpperCase().trim(),
+    type: document.getElementById('coupon-type').value,
+    value: parseFloat(document.getElementById('coupon-value').value)||0,
+    expires_at: new Date(document.getElementById('coupon-expires').value).toISOString(),
+    max_uses: parseInt(document.getElementById('coupon-usage').value)||100
+  };
+  
+  try {
+    await apiFetch('/api/coupons', { method: 'POST', body });
+    showToast('تم نشر وحفظ الكوبون الترويجي الجديد بالمتجر', 'success');
+    closeModal('coupon-modal');
+    loadActiveTab();
+  } catch(e) { showToast(e.message || 'خطأ أثناء تنفيذ وحفظ حقول القسيمة المالية الترويجية', 'error'); }
+}
+
+async function deleteCoupon(id) {
+  if(!confirm('هل تود تعطيل وحذف رمز كوبون الخصم المختار نهائياً؟')) return;
+  try {
+    await apiFetch(`/api/coupons?id=${id}`, { method: 'DELETE' });
+    showToast('تم تدمير رمز الكوبون بنجاح من خادم المتجر العلوية', 'success');
+    loadActiveTab();
+  } catch(e){ showToast('فشل في إرسال أمر إتلاف ومسح كيان قسيمة الخصم البرمجية', 'error'); }
+}
+
+// ═══════════════════════════════════════════════
+// CUSTOMERS DATA VIEW CONTROLLER ROUTINE
+// ═══════════════════════════════════════════════
+async function loadCustomersTable() {
+  const tbody = document.getElementById('customers-tbody');
+  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text2);">جاري قراءة مصفوفة حسابات العملاء...</td></tr>';
+  try {
+    const p = State.pagination.customers;
+    const q = State.searchQueries.customers;
+    const res = await apiFetch(`/api/customers?page=${p.page}&limit=${p.limit}&search=${encodeURIComponent(q)}`);
+    
+    tbody.innerHTML = '';
+    if(!res.data || res.data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text2);">لا يوجد عملاء أو مشتركون مسجلون حالياً ببيانات المتجر.</td></tr>';
+      document.getElementById('customers-pagination').innerHTML = '';
+      return;
+    }
+    res.data.forEach(c => {
+      const regDate = new Date(c.created_at).toLocaleDateString('ar-EG');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+         <td>
+           <div style="font-weight:600;">${c.name || 'مشتري افتراضي'}</div>
+           <div style="font-size:12px;color:var(--text2);">${c.email || 'بدون بريد إلكتروني'}</div>
+         </td>
+         <td><code>${c.phone || '—'}</code></td>
+         <td>${c.governorate || '—'}</td>
+         <td style="font-size:13px;color:var(--text2);">${regDate}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    renderPaginationUI('customers', res.total, p.page, p.limit);
+  } catch(e){ showToast('خطأ أثناء فحص وجلب سجل العملاء من السحابة المركزية', 'error'); }
+}
+
+// ═══════════════════════════════════════════════
+// NEWSLETTER DATA SUBSCRIBERS LAYER ROUTINE
+// ═══════════════════════════════════════════════
+async function loadNewsletterTable() {
+  const tbody = document.getElementById('newsletter-tbody');
+  tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text2);">جاري فحص عناوين القائمة البريدية...</td></tr>';
+  try {
+    const p = State.pagination.newsletter;
+    const q = State.searchQueries.newsletter;
+    const res = await apiFetch(`/api/newsletter?page=${p.page}&limit=${p.limit}&search=${encodeURIComponent(q)}`);
+    
+    tbody.innerHTML = '';
+    if(!res.data || res.data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text2);">لا توجد طلبات اشتراك في النشرة البريدية حالياً.</td></tr>';
+      document.getElementById('newsletter-pagination').innerHTML = '';
+      return;
+    }
+    res.data.forEach(n => {
+      const sDate = new Date(n.created_at).toLocaleDateString('ar-EG');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+         <td><a href="mailto:${n.email}" style="color:var(--accent);text-decoration:none;font-weight:500;">${n.email}</a></td>
+         <td style="font-size:13px;color:var(--text2);">${sDate}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    renderPaginationUI('newsletter', res.total, p.page, p.limit);
+  } catch(e){ showToast('فشل في تحميل عناوين النشرة البريدية من السيرفر السحابي', 'error'); }
+}
+
+// ═══════════════════════════════════════════════
+// SETTINGS LOGISTICS INFRASTRUCTURE ACTION MODULE
+// ═══════════════════════════════════════════════
+async function saveSettings(e) {
+  e.preventDefault();
+  const btn = document.getElementById('save-settings-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> جاري مزامنة الإعدادات...';
+  
+  const body = {
+    shipping_flat_rate: parseFloat(document.getElementById('settings-shipping').value)||0,
+    announcement_banner_text: document.getElementById('settings-banner').value
+  };
+  
+  try {
+    await apiFetch('/api/settings', { method: 'PUT', body });
+    showToast('تم حفظ المتغيرات وضبط تكلفة التوصيل ومزامنتها بنجاح وافر', 'success');
+  } catch(e){ showToast('فشل في تحديث ملف متغيرات الضبط الفني اللوجستي بالخادم التابع', 'error'); }
+  finally { btn.disabled = false; btn.innerHTML = 'حفظ الإعدادات الفنية'; }
+}
+
+// ═══════════════════════════════════════════════
+// UI ENGINE PAGINATION & DIALOGS ABSTRACT MODIFIERS
+// ═══════════════════════════════════════════════
+function renderPaginationUI(key, total, page, limit) {
   const pages = Math.ceil(total/limit)||1;
   const el = document.getElementById(`${key}-pagination`);
   if(!el) return;
@@ -2325,26 +1413,25 @@ function renderPagination(key){
   const start = Math.max(1, page-2);
   const end   = Math.min(pages, page+2);
   if(start>1) btns += `<button class="page-btn" onclick="goPage('${key}',1)">1</button>${start>2?'<span style="padding:0 4px;color:var(--text3)">…</span>':''}`;
-  for(let i=start;i<=end;i++) btns+=`<button class="page-btn ${i===page?'active':''}" onclick="goPage('${key}',${i})">${i}</button>`;
+  for(let i=start;i<=end;i++) btns+=`<button class="page-btn ${i===page?'active':''}\" onclick="goPage('${key}',${i})">${i}</button>`;
   if(end<pages) btns += `${end<pages-1?'<span style="padding:0 4px;color:var(--text3)">…</span>':''}<button class="page-btn" onclick="goPage('${key}',${pages})">${pages}</button>`;
   btns += `<button class="page-btn" onclick="goPage('${key}',${page+1})" ${page>=pages?'disabled':''}>›</button>`;
 
   const from = ((page-1)*limit)+1;
   const to   = Math.min(page*limit, total);
   el.innerHTML = `
-    <span class="pagination-info">عرض ${from}–${to} من ${total}</span>
-    <div class="pagination-btns">${btns}</div>
+    <span class="pagination-info">عرض ${from}–${to} من ${total} عنصر سجل مرجعي</span>
+    <div class="pagination-buttons">${btns}</div>
   `;
 }
 
-function goPage(key, page){
-  const {limit,total} = pagState[key];
-  const pages = Math.ceil(total/limit)||1;
-  if(page<1||page>pages) return;
-  pagState[key].page = page;
-  const loaders = {products:loadProducts,orders:loadOrders,customers:loadCustomers,newsletter:loadNewsletter};
-  if(loaders[key]) loaders[key]();
+function goPage(key, page) {
+  State.pagination[key].page = page;
+  loadActiveTab();
 }
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 </script>
 </body>
 </html>
