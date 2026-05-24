@@ -1416,8 +1416,11 @@ function toggleSidebar(force){
 // API HELPER
 // ═══════════════════════════════════════════════
 async function apiFetch(path, opts={}){
+  if(!path.startsWith('/api/')){
+    path = path.replace(/^\/?/, '/api/');
+  }
   try {
-    const res = await fetch(API+path, {
+    const res = await fetch(path, {
       headers:{'Content-Type':'application/json',...(opts.headers||{})},
       ...opts,
       body: opts.body ? JSON.stringify(opts.body) : undefined,
