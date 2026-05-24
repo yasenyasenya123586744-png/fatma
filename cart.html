@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="it" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrello — L'Oro del Nilo</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ══════════════════════════════════════
+       DESIGN SYSTEM — matches index.html
+    ══════════════════════════════════════ */
+    :root {
+      --cream: #faf8f4; --beige: #e8e0d4; --beige-mid: #d4c9b8;
+      --olive: #4a5240; --olive-light: #6b7560; --olive-dark: #323829;
+      --gold: #c9a96e; --gold-light: #dfc08a; --gold-pale: #f0e4cc;
+      --brown: #8b6f47; --brown-light: #a8896a;
+      --ink: #1e1e1a; --ink-mid: #3d3d36; --muted: #7a7468; --white: #ffffff;
+      --font-ar: 'Alexandria', sans-serif;
+      --font-lat: 'Manrope', sans-serif;
+      --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px;
+      --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px;
+      --radius-sm: 4px; --radius-md: 8px; --radius-lg: 16px;
+      --radius-xl: 24px; --radius-full: 9999px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ease-out: cubic-bezier(0, 0, 0.2, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --max-width: 1280px; --nav-height: 72px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body { font-family: var(--font-lat); background: var(--cream); color: var(--ink); line-height: 1.6; overflow-x: hidden; }
+    html[lang="ar"] body, [lang="ar"] { font-family: var(--font-ar); }
+    img { display: block; max-width: 100%; height: auto; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    ul, ol { list-style: none; }
+
+    .container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-lg); }
+    @media (min-width: 768px) { .container { padding: 0 var(--space-xl); } }
+
+    .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+
+    /* ══════════════════════════════════════
+       NAVBAR
+    ══════════════════════════════════════ */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: var(--nav-height); display: flex; align-items: center;
+      background: rgba(250,248,244,0.96); backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px); box-shadow: 0 1px 0 var(--beige);
+    }
+    .navbar__inner { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+    .navbar__logo { display: flex; flex-direction: column; line-height: 1; gap: 2px; }
+    .navbar__logo-en { font-family: var(--font-lat); font-size: 18px; font-weight: 700; letter-spacing: 0.04em; color: var(--olive-dark); }
+    .navbar__logo-ar { font-family: var(--font-ar); font-size: 12px; font-weight: 400; color: var(--gold); letter-spacing: 0.06em; }
+    .navbar__actions { display: flex; align-items: center; gap: var(--space-md); }
+    .lang-switcher { display: flex; align-items: center; gap: 2px; background: var(--beige); border-radius: var(--radius-full); padding: 3px; }
+    .lang-btn { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 4px 10px; border-radius: var(--radius-full); color: var(--muted); transition: all 0.2s var(--ease); font-family: var(--font-lat); }
+    .lang-btn.active { background: var(--white); color: var(--olive-dark); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .cart-btn { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-full); color: var(--ink); transition: background 0.2s; }
+    .cart-btn:hover { background: var(--beige); }
+    .cart-count { position: absolute; top: 4px; right: 4px; width: 16px; height: 16px; background: var(--gold); color: var(--white); font-size: 9px; font-weight: 700; border-radius: var(--radius-full); display: none; align-items: center; justify-content: center; }
+    .cart-count.visible { display: flex; }
+    .hamburger { display: flex; flex-direction: column; gap: 5px; width: 40px; height: 40px; align-items: center; justify-content: center; border-radius: var(--radius-full); transition: background 0.2s; }
+    .hamburger:hover { background: var(--beige); }
+    .hamburger span { display: block; width: 20px; height: 1.5px; background: var(--ink); transition: all 0.3s var(--ease); transform-origin: center; }
+    .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+    @media (min-width: 768px) { .hamburger { display: none; } }
+
+    /* Mobile Menu */
+    .mobile-menu { position: fixed; top: var(--nav-height); left: 0; right: 0; background: var(--cream); border-top: 1px solid var(--beige); padding: var(--space-lg); z-index: 999; transform: translateY(-20px); opacity: 0; pointer-events: none; transition: all 0.3s var(--ease-out); }
+    .mobile-menu.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .mobile-menu__links { display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-lg); }
+    .mobile-menu__link { font-size: 18px; font-weight: 400; color: var(--ink); padding: var(--space-sm) 0; border-bottom: 1px solid var(--beige); }
+
+    /* ══════════════════════════════════════
+       PAGE HEADER
+    ══════════════════════════════════════ */
+    .page-header {
+      padding-top: calc(var(--nav-height) + var(--space-2xl));
+      padding-bottom: var(--space-xl);
+      border-bottom: 1px solid var(--beige);
+    }
+    .page-header .eyebrow { display: block; margin-bottom: var(--space-sm); }
+    .page-header h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 300; letter-spacing: -0.02em; line-height: 1.1; }
+    .page-header h1 em { font-style: italic; color: var(--olive); font-weight: 400; }
+
+    /* ══════════════════════════════════════
+       CART LAYOUT
+    ══════════════════════════════════════ */
+    .cart-page { padding: var(--space-2xl) 0 var(--space-3xl); }
+
+    .cart-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-xl);
+    }
+    @media (min-width: 1024px) {
+      .cart-layout { grid-template-columns: 1fr 380px; gap: var(--space-2xl); }
+    }
+
+    /* ══════════════════════════════════════
+       EMPTY CART
+    ══════════════════════════════════════ */
+    .cart-empty {
+      text-align: center;
+      padding: var(--space-3xl) var(--space-lg);
+      display: none;
+    }
+    .cart-empty.visible { display: block; }
+    .cart-empty__icon { font-size: 64px; margin-bottom: var(--space-lg); opacity: 0.4; }
+    .cart-empty__title { font-size: 24px; font-weight: 300; color: var(--ink); margin-bottom: var(--space-md); }
+    .cart-empty__subtitle { font-size: 15px; color: var(--muted); margin-bottom: var(--space-xl); }
+
+    /* ══════════════════════════════════════
+       CART ITEMS LIST
+    ══════════════════════════════════════ */
+    .cart-items { display: flex; flex-direction: column; gap: var(--space-md); }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: var(--space-md);
+      background: var(--white);
+      border: 1px solid var(--beige);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      transition: box-shadow 0.2s var(--ease);
+    }
+    .cart-item:hover { box-shadow: 0 4px 16px rgba(74,82,64,0.08); }
+
+    @media (min-width: 640px) {
+      .cart-item { grid-template-columns: 100px 1fr; padding: var(--space-lg); }
+    }
+
+    .cart-item__img-wrap {
+      width: 88px; height: 88px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--beige);
+      flex-shrink: 0;
+    }
+    @media (min-width: 640px) { .cart-item__img-wrap { width: 100px; height: 100px; } }
+
+    .cart-item__img { width: 100%; height: 100%; object-fit: cover; }
+    .cart-item__img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--beige) 0%, var(--beige-mid) 100%); }
+    .cart-item__img-placeholder span { font-size: 32px; opacity: 0.5; }
+
+    .cart-item__body { display: flex; flex-direction: column; gap: var(--space-sm); min-width: 0; }
+    .cart-item__name { font-size: 15px; font-weight: 500; color: var(--ink); line-height: 1.3; }
+    .cart-item__sku { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+
+    .cart-item__footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; flex-wrap: wrap; gap: var(--space-sm); }
+
+    .qty-control { display: flex; align-items: center; gap: var(--space-sm); }
+    .qty-btn {
+      width: 28px; height: 28px; border-radius: var(--radius-full);
+      border: 1px solid var(--beige); background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--ink-mid); line-height: 1;
+      transition: all 0.2s var(--ease); font-weight: 300;
+    }
+    .qty-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+    .qty-value { font-size: 14px; font-weight: 600; min-width: 24px; text-align: center; }
+
+    .cart-item__price { font-size: 16px; font-weight: 600; color: var(--olive); }
+    .cart-item__unit-price { font-size: 12px; color: var(--muted); }
+
+    .cart-item__remove {
+      font-size: 11px; color: var(--muted); text-decoration: underline;
+      text-underline-offset: 2px; transition: color 0.2s; padding: 2px 0;
+      letter-spacing: 0.04em;
+    }
+    .cart-item__remove:hover { color: #c0392b; }
+
+    /* ══════════════════════════════════════
+       ORDER SUMMARY SIDEBAR
+    ══════════════════════════════════════ */
+    .order-summary {
+      background: var(--white);
+      border: 1px solid var(--beige);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      position: sticky;
+      top: calc(var(--nav-height) + var(--space-lg));
+      height: fit-content;
+    }
+
+    .summary__title { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: var(--space-xl); letter-spacing: -0.01em; }
+
+    .summary__row { display: flex; justify-content: space-between; align-items: center; padding: var(--space-sm) 0; font-size: 14px; color: var(--muted); }
+    .summary__row + .summary__row { border-top: 1px solid var(--beige); }
+    .summary__row--total { font-size: 18px; font-weight: 700; color: var(--ink); border-top: 2px solid var(--beige) !important; padding-top: var(--space-md); margin-top: var(--space-sm); }
+    .summary__row--discount { color: #2ecc71; }
+    .summary__row--free { color: var(--olive); font-weight: 500; }
+
+    /* Coupon */
+    .coupon-section { margin: var(--space-lg) 0; }
+    .coupon-label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: var(--space-sm); display: block; }
+    .coupon-input-row { display: flex; gap: var(--space-sm); }
+    .coupon-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--beige);
+      border-radius: var(--radius-md); background: var(--cream);
+      font-family: var(--font-lat); font-size: 13px; color: var(--ink);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .coupon-input:focus { border-color: var(--gold); }
+    .coupon-input.error { border-color: #e74c3c; }
+    .coupon-input.success { border-color: #2ecc71; }
+    .coupon-apply-btn {
+      padding: 10px 16px; background: var(--olive); color: var(--white);
+      border-radius: var(--radius-md); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.06em; transition: all 0.2s var(--ease);
+      white-space: nowrap;
+    }
+    .coupon-apply-btn:hover { background: var(--olive-dark); }
+    .coupon-apply-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .coupon-msg { font-size: 12px; margin-top: var(--space-xs); min-height: 18px; }
+    .coupon-msg.error { color: #e74c3c; }
+    .coupon-msg.success { color: #27ae60; }
+
+    /* Shipping info note */
+    .shipping-note { background: var(--gold-pale); border-radius: var(--radius-md); padding: var(--space-md); margin: var(--space-md) 0; font-size: 12px; color: var(--brown); line-height: 1.5; }
+    .shipping-note strong { display: block; margin-bottom: 2px; font-weight: 600; }
+
+    /* CTA */
+    .btn-checkout {
+      width: 100%; padding: 16px 24px;
+      background: var(--olive); color: var(--white);
+      border-radius: var(--radius-full);
+      font-size: 14px; font-weight: 600; letter-spacing: 0.06em;
+      display: flex; align-items: center; justify-content: center; gap: var(--space-sm);
+      transition: all 0.3s var(--ease); margin-top: var(--space-lg);
+    }
+    .btn-checkout:hover { background: var(--olive-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(74,82,64,0.3); }
+    .btn-checkout:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-checkout svg { transition: transform 0.3s var(--ease-spring); }
+    .btn-checkout:hover svg { transform: translateX(4px); }
+
+    .btn-continue {
+      display: flex; align-items: center; justify-content: center; gap: var(--space-sm);
+      width: 100%; padding: 12px 24px; border: 1px solid var(--beige);
+      border-radius: var(--radius-full); font-size: 13px; color: var(--muted);
+      transition: all 0.2s var(--ease); margin-top: var(--space-sm);
+    }
+    .btn-continue:hover { border-color: var(--olive); color: var(--olive); }
+
+    .btn-primary-outline {
+      display: inline-flex; align-items: center; gap: var(--space-sm);
+      padding: 14px 28px; border: 1px solid var(--olive);
+      border-radius: var(--radius-full); font-size: 14px; font-weight: 500;
+      color: var(--olive); transition: all 0.3s var(--ease);
+    }
+    .btn-primary-outline:hover { background: var(--olive); color: var(--white); }
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    .footer { background: var(--olive-dark); color: var(--cream); padding: var(--space-2xl) 0 var(--space-xl); }
+    .footer__top { display: grid; grid-template-columns: 1fr; gap: var(--space-2xl); margin-bottom: var(--space-2xl); }
+    @media (min-width: 640px) { .footer__top { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .footer__top { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+    .footer__brand-logo { font-size: 22px; font-weight: 700; letter-spacing: 0.04em; margin-bottom: var(--space-md); }
+    .footer__brand-tagline { font-size: 13px; color: rgba(250,248,244,0.5); line-height: 1.6; max-width: 280px; margin-bottom: var(--space-lg); }
+    .footer__social { display: flex; gap: var(--space-md); }
+    .footer__social-link { width: 36px; height: 36px; border-radius: var(--radius-full); border: 1px solid rgba(250,248,244,0.15); display: flex; align-items: center; justify-content: center; color: rgba(250,248,244,0.6); transition: all 0.2s var(--ease); }
+    .footer__social-link:hover { border-color: var(--gold); color: var(--gold); }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(250,248,244,0.4); margin-bottom: var(--space-lg); }
+    .footer__links { display: flex; flex-direction: column; gap: var(--space-sm); }
+    .footer__link { font-size: 14px; color: rgba(250,248,244,0.65); transition: color 0.2s; }
+    .footer__link:hover { color: var(--gold); }
+    .footer__bottom { display: flex; flex-direction: column; gap: var(--space-md); padding-top: var(--space-xl); border-top: 1px solid rgba(250,248,244,0.08); }
+    @media (min-width: 640px) { .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
+    .footer__copyright { font-size: 12px; color: rgba(250,248,244,0.35); }
+    .footer__payment { display: flex; gap: var(--space-sm); }
+    .payment-badge { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; padding: 4px 8px; border: 1px solid rgba(250,248,244,0.15); border-radius: var(--radius-sm); color: rgba(250,248,244,0.4); }
+
+    /* WhatsApp */
+    .whatsapp-btn { position: fixed; bottom: var(--space-xl); right: var(--space-lg); width: 52px; height: 52px; background: #25d366; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(37,211,102,0.4); z-index: 900; transition: transform 0.3s var(--ease-spring); }
+    .whatsapp-btn:hover { transform: scale(1.1); }
+    .whatsapp-btn svg { width: 26px; height: 26px; }
+
+    /* Loading spinner */
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+
+<body>
+
+<!-- ══════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="navbar__inner">
+      <a href="/" class="navbar__logo" aria-label="L'Oro del Nilo">
+        <span class="navbar__logo-en">L'Oro del Nilo</span>
+        <span class="navbar__logo-ar">ذهب النيل</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-btn" data-lang="ar">AR</button>
+          <button class="lang-btn active" data-lang="it">IT</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+        <a href="cart.html" class="cart-btn" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <nav class="mobile-menu__links">
+    <a href="/" class="mobile-menu__link i18n" data-key="nav_products">Prodotti</a>
+    <a href="/" class="mobile-menu__link i18n" data-key="nav_categories">Categorie</a>
+    <a href="/" class="mobile-menu__link i18n" data-key="nav_story">La Nostra Storia</a>
+    <a href="/" class="mobile-menu__link i18n" data-key="nav_contact">Contatti</a>
+  </nav>
+  <div class="lang-switcher">
+    <button class="lang-btn" data-lang="ar">AR</button>
+    <button class="lang-btn active" data-lang="it">IT</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE HEADER
+══════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="container">
+    <span class="eyebrow i18n" data-key="cart_eyebrow">Il Tuo Ordine</span>
+    <h1><span class="i18n" data-key="cart_title">Il tuo</span> <em class="i18n" data-key="cart_title_em">carrello</em></h1>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════════ -->
+<main class="cart-page">
+  <div class="container">
+
+    <!-- Empty state -->
+    <div class="cart-empty" id="cartEmpty">
+      <div class="cart-empty__icon">🛍️</div>
+      <h2 class="cart-empty__title i18n" data-key="cart_empty_title">Il tuo carrello è vuoto</h2>
+      <p class="cart-empty__subtitle i18n" data-key="cart_empty_subtitle">Aggiungi qualche prodotto e torna qui per completare l'ordine.</p>
+      <a href="/" class="btn-primary-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        <span class="i18n" data-key="cart_go_shop">Vai al negozio</span>
+      </a>
+    </div>
+
+    <!-- Cart layout (items + summary) -->
+    <div class="cart-layout" id="cartLayout">
+
+      <!-- LEFT: Items -->
+      <div>
+        <div class="cart-items" id="cartItemsList">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- RIGHT: Summary -->
+      <aside class="order-summary" id="orderSummary">
+        <h2 class="summary__title i18n" data-key="summary_title">Riepilogo ordine</h2>
+
+        <!-- Rows -->
+        <div class="summary__row">
+          <span class="i18n" data-key="summary_subtotal">Subtotale</span>
+          <span id="summarySubtotal">€0,00</span>
+        </div>
+        <div class="summary__row" id="discountRow" style="display:none;">
+          <span class="i18n" data-key="summary_discount">Sconto coupon</span>
+          <span id="summaryDiscount" class="summary__row--discount">-€0,00</span>
+        </div>
+        <div class="summary__row">
+          <span class="i18n" data-key="summary_shipping">Spedizione</span>
+          <span id="summaryShipping">€5,90</span>
+        </div>
+        <div class="summary__row summary__row--total">
+          <span class="i18n" data-key="summary_total">Totale</span>
+          <span id="summaryTotal">€0,00</span>
+        </div>
+
+        <!-- Shipping info -->
+        <div class="shipping-note" id="shippingNote">
+          <strong class="i18n" data-key="shipping_free_note_title">Spedizione gratuita sopra €50</strong>
+          <span id="shippingNoteText" class="i18n" data-key="shipping_note_text"></span>
+        </div>
+
+        <!-- Coupon -->
+        <div class="coupon-section">
+          <label class="coupon-label i18n" data-key="coupon_label">Codice sconto</label>
+          <div class="coupon-input-row">
+            <input class="coupon-input" type="text" id="couponInput" placeholder="CODICE" maxlength="32" autocomplete="off" />
+            <button class="coupon-apply-btn i18n" id="couponApplyBtn" data-key="coupon_apply">Applica</button>
+          </div>
+          <p class="coupon-msg" id="couponMsg"></p>
+        </div>
+
+        <!-- CTA -->
+        <button class="btn-checkout" id="checkoutBtn" onclick="window.location.href='checkout.html'">
+          <span class="i18n" data-key="cart_proceed">Procedi al checkout</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+        <button class="btn-continue" onclick="window.location.href='/'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+          </svg>
+          <span class="i18n" data-key="cart_continue">Continua a comprare</span>
+        </button>
+      </aside>
+
+    </div><!-- /cart-layout -->
+  </div>
+</main>
+
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer class="footer" id="contact">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <div class="footer__brand-logo">L'Oro del Nilo</div>
+        <p class="footer__brand-tagline i18n" data-key="footer_tagline">Frutti pregiati dal cuore del Mediterraneo. Dal 2009, con passione.</p>
+        <div class="footer__social">
+          <a href="#" class="footer__social-link" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" class="footer__social-link" aria-label="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <p class="footer__col-title i18n" data-key="footer_shop">Shop</p>
+        <ul class="footer__links">
+          <li><a href="/" class="footer__link i18n" data-key="nav_products">Prodotti</a></li>
+          <li><a href="/" class="footer__link i18n" data-key="nav_categories">Categorie</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer__col-title i18n" data-key="footer_info">Informazioni</p>
+        <ul class="footer__links">
+          <li><a href="/" class="footer__link i18n" data-key="nav_story">La Nostra Storia</a></li>
+          <li><a href="#" class="footer__link i18n" data-key="footer_shipping">Spedizioni</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer__col-title i18n" data-key="footer_contact_title">Contatti</p>
+        <ul class="footer__links">
+          <li><a href="mailto:info@lorodelnilo.it" class="footer__link">info@lorodelnilo.it</a></li>
+          <li><a href="tel:+390000000000" class="footer__link">+39 000 000 0000</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p class="footer__copyright">© <span id="year"></span> L'Oro del Nilo. <span class="i18n" data-key="footer_rights">Tutti i diritti riservati.</span></p>
+      <div class="footer__payment">
+        <span class="payment-badge">VISA</span>
+        <span class="payment-badge">MC</span>
+        <span class="payment-badge">PayPal</span>
+        <span class="payment-badge">COD</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/390000000000" class="whatsapp-btn" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L0 24l6.323-1.508A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.79 9.79 0 01-5.007-1.374l-.358-.213-3.754.895.955-3.645-.234-.374A9.787 9.787 0 012.182 12C2.182 6.578 6.578 2.182 12 2.182c5.421 0 9.818 4.396 9.818 9.818 0 5.421-4.397 9.818-9.818 9.818z"/>
+  </svg>
+</a>
+
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── Translations ─────────────────────────── */
+const T = {
+  it: {
+    nav_products: 'Prodotti', nav_categories: 'Categorie', nav_story: 'La Nostra Storia', nav_contact: 'Contatti',
+    cart_eyebrow: 'Il Tuo Ordine', cart_title: 'Il tuo', cart_title_em: 'carrello',
+    cart_empty_title: 'Il tuo carrello è vuoto',
+    cart_empty_subtitle: 'Aggiungi qualche prodotto e torna qui per completare l\'ordine.',
+    cart_go_shop: 'Vai al negozio',
+    summary_title: 'Riepilogo ordine',
+    summary_subtotal: 'Subtotale', summary_discount: 'Sconto coupon',
+    summary_shipping: 'Spedizione', summary_total: 'Totale',
+    shipping_free_note_title: 'Spedizione gratuita sopra €50',
+    shipping_note_progress: 'Aggiungi €{n} per la spedizione gratuita!',
+    shipping_note_free: '🎉 Hai la spedizione gratuita!',
+    coupon_label: 'Codice sconto', coupon_apply: 'Applica',
+    coupon_ok: 'Coupon applicato: {d} di sconto!',
+    coupon_err: 'Coupon non valido o scaduto.',
+    cart_proceed: 'Procedi al checkout', cart_continue: 'Continua a comprare',
+    remove: 'Rimuovi',
+    footer_tagline: 'Frutti pregiati dal cuore del Mediterraneo. Dal 2009, con passione.',
+    footer_shop: 'Shop', footer_info: 'Informazioni', footer_contact_title: 'Contatti',
+    footer_shipping: 'Spedizioni', footer_rights: 'Tutti i diritti riservati.',
+    currency: '€',
+  },
+  en: {
+    nav_products: 'Products', nav_categories: 'Categories', nav_story: 'Our Story', nav_contact: 'Contact',
+    cart_eyebrow: 'Your Order', cart_title: 'Your', cart_title_em: 'cart',
+    cart_empty_title: 'Your cart is empty',
+    cart_empty_subtitle: 'Add some products and come back here to complete your order.',
+    cart_go_shop: 'Go to shop',
+    summary_title: 'Order summary',
+    summary_subtotal: 'Subtotal', summary_discount: 'Coupon discount',
+    summary_shipping: 'Shipping', summary_total: 'Total',
+    shipping_free_note_title: 'Free shipping above €50',
+    shipping_note_progress: 'Add €{n} more for free shipping!',
+    shipping_note_free: '🎉 You have free shipping!',
+    coupon_label: 'Discount code', coupon_apply: 'Apply',
+    coupon_ok: 'Coupon applied: {d} discount!',
+    coupon_err: 'Invalid or expired coupon.',
+    cart_proceed: 'Proceed to checkout', cart_continue: 'Continue shopping',
+    remove: 'Remove',
+    footer_tagline: 'Premium fruits from the heart of the Mediterranean. Since 2009, with passion.',
+    footer_shop: 'Shop', footer_info: 'Information', footer_contact_title: 'Contact',
+    footer_shipping: 'Shipping', footer_rights: 'All rights reserved.',
+    currency: '€',
+  },
+  ar: {
+    nav_products: 'المنتجات', nav_categories: 'التصنيفات', nav_story: 'قصتنا', nav_contact: 'تواصل',
+    cart_eyebrow: 'طلبك', cart_title: 'سلة', cart_title_em: 'مشترياتك',
+    cart_empty_title: 'سلة المشتريات فارغة',
+    cart_empty_subtitle: 'أضف بعض المنتجات وعد هنا لإتمام طلبك.',
+    cart_go_shop: 'اذهب للمتجر',
+    summary_title: 'ملخص الطلب',
+    summary_subtotal: 'المجموع الفرعي', summary_discount: 'خصم الكوبون',
+    summary_shipping: 'الشحن', summary_total: 'الإجمالي',
+    shipping_free_note_title: 'شحن مجاني فوق €50',
+    shipping_note_progress: 'أضف €{n} للشحن المجاني!',
+    shipping_note_free: '🎉 لديك شحن مجاني!',
+    coupon_label: 'كود الخصم', coupon_apply: 'تطبيق',
+    coupon_ok: 'تم تطبيق الكوبون: خصم {d}!',
+    coupon_err: 'كوبون غير صالح أو منتهي الصلاحية.',
+    cart_proceed: 'المتابعة للدفع', cart_continue: 'مواصلة التسوق',
+    remove: 'حذف',
+    footer_tagline: 'ثمار فاخرة من قلب البحر المتوسط. منذ 2009، بشغف.',
+    footer_shop: 'المتجر', footer_info: 'معلومات', footer_contact_title: 'تواصل',
+    footer_shipping: 'الشحن', footer_rights: 'جميع الحقوق محفوظة.',
+    currency: '€',
+  }
+};
+
+/* ── State ────────────────────────────────── */
+let currentLang = localStorage.getItem('lang') || 'it';
+let appliedCoupon = null; // { code, discount_type, discount_value, discount_amount }
+
+const SHIPPING_BASE    = 5.90;
+const SHIPPING_FREE_AT = 50;
+
+/* ── Cart helpers ─────────────────────────── */
+function getCart() {
+  try { return JSON.parse(localStorage.getItem('orodelnilo_cart') || '[]'); }
+  catch { return []; }
+}
+
+function saveCart(cart) {
+  localStorage.setItem('orodelnilo_cart', JSON.stringify(cart));
+}
+
+function updateQuantity(productId, delta) {
+  const cart = getCart();
+  const idx  = cart.findIndex(i => i.product_id === productId);
+  if (idx === -1) return;
+  cart[idx].quantity = Math.max(1, cart[idx].quantity + delta);
+  saveCart(cart);
+  renderCart();
+}
+
+function removeItem(productId) {
+  const cart = getCart().filter(i => i.product_id !== productId);
+  saveCart(cart);
+  appliedCoupon = null; // reset coupon when cart changes
+  renderCart();
+}
+
+/* ── Pricing calculations ─────────────────── */
+function calcSubtotal(cart) {
+  return cart.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+}
+
+function calcShipping(subtotal) {
+  return subtotal >= SHIPPING_FREE_AT ? 0 : SHIPPING_BASE;
+}
+
+function calcDiscount(subtotal) {
+  if (!appliedCoupon) return 0;
+  if (appliedCoupon.discount_type === 'percentage') {
+    return parseFloat(((subtotal * appliedCoupon.discount_value) / 100).toFixed(2));
+  }
+  return Math.min(appliedCoupon.discount_value, subtotal);
+}
+
+/* ── Render ───────────────────────────────── */
+function renderCart() {
+  const cart    = getCart();
+  const t       = T[currentLang];
+  const isEmpty = cart.length === 0;
+
+  // Show/hide empty state vs layout
+  document.getElementById('cartEmpty').classList.toggle('visible', isEmpty);
+  document.getElementById('cartLayout').style.display = isEmpty ? 'none' : '';
+
+  // Update navbar cart count
+  const total   = cart.reduce((s, i) => s + i.quantity, 0);
+  const countEl = document.getElementById('cartCount');
+  countEl.textContent = total;
+  countEl.classList.toggle('visible', total > 0);
+
+  if (isEmpty) return;
+
+  // Render items
+  const list = document.getElementById('cartItemsList');
+  list.innerHTML = cart.map(item => {
+    const lineTotal = (item.unit_price * item.quantity).toFixed(2);
+    const imgHtml   = item.image_url
+      ? `<img class="cart-item__img" src="${item.image_url}" alt="${item.product_name}" loading="lazy">`
+      : `<div class="cart-item__img-placeholder"><span>🌰</span></div>`;
+
+    return `
+    <div class="cart-item" data-id="${item.product_id}">
+      <div class="cart-item__img-wrap">${imgHtml}</div>
+      <div class="cart-item__body">
+        <p class="cart-item__name">${item.product_name}</p>
+        ${item.product_sku ? `<p class="cart-item__sku">${item.product_sku}</p>` : ''}
+        <div class="cart-item__footer">
+          <div class="qty-control">
+            <button class="qty-btn" onclick="updateQuantity('${item.product_id}', -1)" aria-label="Diminuisci">−</button>
+            <span class="qty-value">${item.quantity}</span>
+            <button class="qty-btn" onclick="updateQuantity('${item.product_id}', 1)" aria-label="Aumenta">+</button>
+          </div>
+          <div style="text-align:right;">
+            <p class="cart-item__price">${t.currency}${lineTotal}</p>
+            <p class="cart-item__unit-price">${t.currency}${item.unit_price.toFixed(2)} / pz</p>
+          </div>
+        </div>
+        <button class="cart-item__remove" onclick="removeItem('${item.product_id}')">${t.remove}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Render summary
+  const subtotal  = calcSubtotal(cart);
+  const discount  = calcDiscount(subtotal);
+  const shipping  = calcShipping(subtotal - discount);
+  const grandTotal = parseFloat((subtotal - discount + shipping).toFixed(2));
+
+  document.getElementById('summarySubtotal').textContent = `${t.currency}${subtotal.toFixed(2)}`;
+  document.getElementById('summaryShipping').textContent =
+    shipping === 0
+      ? `<span style="color:var(--olive);font-weight:600">${currentLang === 'ar' ? 'مجاني' : currentLang === 'en' ? 'Free' : 'Gratuita'}</span>`
+      : `${t.currency}${shipping.toFixed(2)}`;
+  document.getElementById('summaryShipping').innerHTML = document.getElementById('summaryShipping').textContent;
+  document.getElementById('summaryTotal').textContent  = `${t.currency}${grandTotal.toFixed(2)}`;
+
+  // Discount row
+  const discRow = document.getElementById('discountRow');
+  if (discount > 0) {
+    discRow.style.display = '';
+    document.getElementById('summaryDiscount').textContent = `-${t.currency}${discount.toFixed(2)}`;
+  } else {
+    discRow.style.display = 'none';
+  }
+
+  // Shipping note
+  const remaining = SHIPPING_FREE_AT - (subtotal - discount);
+  const noteText  = document.getElementById('shippingNoteText');
+  if (shipping === 0) {
+    noteText.textContent = t.shipping_note_free;
+  } else {
+    noteText.textContent = t.shipping_note_progress.replace('{n}', remaining.toFixed(2));
+  }
+
+  // Save pricing to localStorage for checkout
+  localStorage.setItem('orodelnilo_pricing', JSON.stringify({
+    subtotal, discount, shipping, total: grandTotal,
+    coupon: appliedCoupon ? appliedCoupon.code : null
+  }));
+}
+
+/* ── Coupon validation ────────────────────── */
+document.getElementById('couponApplyBtn').addEventListener('click', async () => {
+  const code = document.getElementById('couponInput').value.trim();
+  const t    = T[currentLang];
+  const msg  = document.getElementById('couponMsg');
+  const inp  = document.getElementById('couponInput');
+  const btn  = document.getElementById('couponApplyBtn');
+
+  if (!code) return;
+
+  const cart     = getCart();
+  const subtotal = calcSubtotal(cart);
+
+  btn.disabled      = true;
+  btn.innerHTML     = `<span class="spinner"></span>`;
+  msg.textContent   = '';
+  inp.className     = 'coupon-input';
+
+  try {
+    const res  = await fetch('/api/coupons?action=validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, order_total: subtotal })
+    });
+    const data = await res.json();
+
+    if (data.valid && data.coupon) {
+      appliedCoupon = data.coupon;
+      inp.className    = 'coupon-input success';
+      msg.className    = 'coupon-msg success';
+      msg.textContent  = t.coupon_ok.replace('{d}', `${t.currency}${data.coupon.discount_amount}`);
+      renderCart();
+    } else {
+      inp.className   = 'coupon-input error';
+      msg.className   = 'coupon-msg error';
+      msg.textContent = data.error || t.coupon_err;
+      appliedCoupon   = null;
+    }
+  } catch {
+    inp.className   = 'coupon-input error';
+    msg.className   = 'coupon-msg error';
+    msg.textContent = t.coupon_err;
+  } finally {
+    btn.disabled  = false;
+    btn.textContent = t.coupon_apply;
+  }
+});
+
+/* ── i18n ────────────────────────────────── */
+function applyTranslations() {
+  const t  = T[currentLang];
+  const dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir  = dir;
+
+  document.querySelectorAll('.i18n[data-key]').forEach(el => {
+    const key = el.dataset.key;
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+}
+
+/* ── Language switcher ────────────────────── */
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentLang = btn.dataset.lang;
+    localStorage.setItem('lang', currentLang);
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+    applyTranslations();
+    renderCart();
+  });
+  btn.classList.toggle('active', btn.dataset.lang === currentLang);
+});
+
+/* ── Hamburger ────────────────────────────── */
+document.getElementById('hamburger').addEventListener('click', function () {
+  this.classList.toggle('open');
+  document.getElementById('mobileMenu').classList.toggle('open');
+  this.setAttribute('aria-expanded', this.classList.contains('open'));
+});
+
+/* ── Footer year ──────────────────────────── */
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ── Init ────────────────────────────────── */
+applyTranslations();
+renderCart();
+</script>
+
+</body>
+</html>

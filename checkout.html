@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="it" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — L'Oro del Nilo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream: #faf8f4; --beige: #e8e0d4; --beige-mid: #d4c9b8;
+      --olive: #4a5240; --olive-light: #6b7560; --olive-dark: #323829;
+      --gold: #c9a96e; --gold-light: #dfc08a; --gold-pale: #f0e4cc;
+      --brown: #8b6f47; --brown-light: #a8896a;
+      --ink: #1e1e1a; --ink-mid: #3d3d36; --muted: #7a7468; --white: #ffffff;
+      --font-ar: 'Alexandria', sans-serif; --font-lat: 'Manrope', sans-serif;
+      --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px;
+      --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px;
+      --radius-sm: 4px; --radius-md: 8px; --radius-lg: 16px;
+      --radius-xl: 24px; --radius-full: 9999px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ease-out: cubic-bezier(0, 0, 0.2, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --max-width: 1280px; --nav-height: 72px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body { font-family: var(--font-lat); background: var(--cream); color: var(--ink); line-height: 1.6; overflow-x: hidden; }
+    html[lang="ar"] body, [lang="ar"] { font-family: var(--font-ar); }
+    img { display: block; max-width: 100%; height: auto; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    ul { list-style: none; }
+
+    .container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-lg); }
+    @media (min-width: 768px) { .container { padding: 0 var(--space-xl); } }
+    .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+
+    /* NAVBAR */
+    .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--nav-height); display: flex; align-items: center; background: rgba(250,248,244,0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 1px 0 var(--beige); }
+    .navbar__inner { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+    .navbar__logo { display: flex; flex-direction: column; line-height: 1; gap: 2px; }
+    .navbar__logo-en { font-family: var(--font-lat); font-size: 18px; font-weight: 700; letter-spacing: 0.04em; color: var(--olive-dark); }
+    .navbar__logo-ar { font-family: var(--font-ar); font-size: 12px; font-weight: 400; color: var(--gold); letter-spacing: 0.06em; }
+    .navbar__actions { display: flex; align-items: center; gap: var(--space-md); }
+    .lang-switcher { display: flex; align-items: center; gap: 2px; background: var(--beige); border-radius: var(--radius-full); padding: 3px; }
+    .lang-btn { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 4px 10px; border-radius: var(--radius-full); color: var(--muted); transition: all 0.2s var(--ease); font-family: var(--font-lat); }
+    .lang-btn.active { background: var(--white); color: var(--olive-dark); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .cart-btn { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-full); color: var(--ink); transition: background 0.2s; }
+    .cart-btn:hover { background: var(--beige); }
+    .cart-count { position: absolute; top: 4px; right: 4px; width: 16px; height: 16px; background: var(--gold); color: var(--white); font-size: 9px; font-weight: 700; border-radius: var(--radius-full); display: none; align-items: center; justify-content: center; }
+    .cart-count.visible { display: flex; }
+    .hamburger { display: flex; flex-direction: column; gap: 5px; width: 40px; height: 40px; align-items: center; justify-content: center; border-radius: var(--radius-full); transition: background 0.2s; }
+    .hamburger:hover { background: var(--beige); }
+    .hamburger span { display: block; width: 20px; height: 1.5px; background: var(--ink); transition: all 0.3s var(--ease); transform-origin: center; }
+    .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+    @media (min-width: 768px) { .hamburger { display: none; } }
+    .mobile-menu { position: fixed; top: var(--nav-height); left: 0; right: 0; background: var(--cream); border-top: 1px solid var(--beige); padding: var(--space-lg); z-index: 999; transform: translateY(-20px); opacity: 0; pointer-events: none; transition: all 0.3s var(--ease-out); }
+    .mobile-menu.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .mobile-menu__links { display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-lg); }
+    .mobile-menu__link { font-size: 18px; font-weight: 400; color: var(--ink); padding: var(--space-sm) 0; border-bottom: 1px solid var(--beige); }
+
+    /* PAGE HEADER */
+    .page-header { padding-top: calc(var(--nav-height) + var(--space-2xl)); padding-bottom: var(--space-xl); border-bottom: 1px solid var(--beige); }
+    .page-header .eyebrow { display: block; margin-bottom: var(--space-sm); }
+    .page-header h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 300; letter-spacing: -0.02em; line-height: 1.1; }
+    .page-header h1 em { font-style: italic; color: var(--olive); font-weight: 400; }
+
+    /* CHECKOUT LAYOUT */
+    .checkout-page { padding: var(--space-2xl) 0 var(--space-3xl); }
+    .checkout-layout { display: grid; grid-template-columns: 1fr; gap: var(--space-xl); }
+    @media (min-width: 1024px) { .checkout-layout { grid-template-columns: 1fr 380px; gap: var(--space-2xl); } }
+
+    /* STEPS INDICATOR */
+    .checkout-steps { display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-2xl); }
+    .step { display: flex; align-items: center; gap: var(--space-sm); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: var(--muted); }
+    .step.active { color: var(--olive); }
+    .step__num { width: 24px; height: 24px; border-radius: var(--radius-full); border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+    .step.active .step__num { background: var(--olive); color: var(--white); border-color: var(--olive); }
+    .step-sep { flex: 1; height: 1px; background: var(--beige); max-width: 40px; }
+
+    /* FORM SECTIONS */
+    .form-section { margin-bottom: var(--space-2xl); }
+    .form-section__title {
+      font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em;
+      margin-bottom: var(--space-lg); padding-bottom: var(--space-md);
+      border-bottom: 1px solid var(--beige);
+      display: flex; align-items: center; gap: var(--space-sm);
+    }
+    .form-section__icon { font-size: 18px; }
+
+    /* FORM GRID */
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-md); }
+    @media (min-width: 480px) { .form-grid--2 { grid-template-columns: 1fr 1fr; } }
+
+    /* FORM FIELDS */
+    .field { display: flex; flex-direction: column; gap: var(--space-xs); }
+    .field--full { grid-column: 1 / -1; }
+
+    .field label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .field label span.req { color: var(--gold); margin-inline-start: 2px; }
+
+    .field input,
+    .field select,
+    .field textarea {
+      padding: 12px 16px;
+      border: 1.5px solid var(--beige);
+      border-radius: var(--radius-md);
+      background: var(--white);
+      font-family: var(--font-lat); font-size: 14px; color: var(--ink);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      width: 100%;
+    }
+    html[lang="ar"] .field input,
+    html[lang="ar"] .field select { font-family: var(--font-ar); }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-pale); }
+
+    .field input.error,
+    .field select.error { border-color: #e74c3c; }
+    .field input.error:focus,
+    .field select.error:focus { box-shadow: 0 0 0 3px rgba(231,76,60,0.1); }
+
+    .field__err { font-size: 11px; color: #e74c3c; display: none; }
+    .field__err.visible { display: block; }
+
+    /* PAYMENT METHOD */
+    .payment-options { display: flex; flex-direction: column; gap: var(--space-md); }
+    .payment-option {
+      display: flex; align-items: flex-start; gap: var(--space-md);
+      padding: var(--space-lg); border: 1.5px solid var(--beige);
+      border-radius: var(--radius-lg); cursor: pointer; transition: all 0.2s var(--ease);
+    }
+    .payment-option.selected { border-color: var(--olive); background: rgba(74,82,64,0.04); }
+    .payment-option__radio { width: 18px; height: 18px; border-radius: var(--radius-full); border: 1.5px solid var(--beige-mid); background: var(--white); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all 0.2s; }
+    .payment-option.selected .payment-option__radio { border-color: var(--olive); }
+    .payment-option.selected .payment-option__radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--olive); display: block; }
+    .payment-option__icon { font-size: 28px; flex-shrink: 0; }
+    .payment-option__body { flex: 1; }
+    .payment-option__title { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .payment-option__desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* NOTES */
+    .field textarea { resize: vertical; min-height: 88px; }
+
+    /* ORDER SUMMARY SIDEBAR */
+    .order-summary { background: var(--white); border: 1px solid var(--beige); border-radius: var(--radius-xl); padding: var(--space-xl); position: sticky; top: calc(var(--nav-height) + var(--space-lg)); height: fit-content; }
+    .summary__title { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: var(--space-xl); letter-spacing: -0.01em; }
+
+    /* Mini cart in sidebar */
+    .mini-cart { margin-bottom: var(--space-lg); border-bottom: 1px solid var(--beige); padding-bottom: var(--space-lg); max-height: 280px; overflow-y: auto; }
+    .mini-cart::-webkit-scrollbar { width: 4px; }
+    .mini-cart::-webkit-scrollbar-track { background: transparent; }
+    .mini-cart::-webkit-scrollbar-thumb { background: var(--beige-mid); border-radius: 2px; }
+
+    .mini-item { display: flex; gap: var(--space-md); align-items: center; padding: var(--space-sm) 0; }
+    .mini-item + .mini-item { border-top: 1px solid var(--beige); }
+    .mini-item__img { width: 52px; height: 52px; border-radius: var(--radius-sm); overflow: hidden; background: var(--beige); flex-shrink: 0; }
+    .mini-item__img img { width: 100%; height: 100%; object-fit: cover; }
+    .mini-item__img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .mini-item__name { font-size: 13px; font-weight: 500; flex: 1; line-height: 1.3; }
+    .mini-item__qty { font-size: 11px; color: var(--muted); }
+    .mini-item__price { font-size: 13px; font-weight: 600; color: var(--olive); white-space: nowrap; }
+
+    .summary__row { display: flex; justify-content: space-between; align-items: center; padding: var(--space-sm) 0; font-size: 14px; color: var(--muted); }
+    .summary__row + .summary__row { border-top: 1px solid var(--beige); }
+    .summary__row--total { font-size: 18px; font-weight: 700; color: var(--ink); border-top: 2px solid var(--beige) !important; padding-top: var(--space-md); margin-top: var(--space-sm); }
+    .summary__row--discount { color: #27ae60; }
+
+    /* Secure badge */
+    .secure-badge { display: flex; align-items: center; gap: var(--space-sm); font-size: 11px; color: var(--muted); margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--beige); }
+
+    /* SUBMIT BUTTON */
+    .btn-place-order {
+      width: 100%; padding: 18px 24px;
+      background: var(--olive); color: var(--white);
+      border-radius: var(--radius-full);
+      font-size: 15px; font-weight: 600; letter-spacing: 0.04em;
+      display: flex; align-items: center; justify-content: center; gap: var(--space-sm);
+      transition: all 0.3s var(--ease); margin-top: var(--space-lg);
+    }
+    .btn-place-order:hover:not(:disabled) { background: var(--olive-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(74,82,64,0.35); }
+    .btn-place-order:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-place-order svg { transition: transform 0.3s var(--ease-spring); }
+    .btn-place-order:hover:not(:disabled) svg { transform: translateX(4px); }
+
+    /* Error alert */
+    .submit-error { background: rgba(231,76,60,0.08); border: 1px solid rgba(231,76,60,0.2); border-radius: var(--radius-md); padding: var(--space-md); font-size: 13px; color: #c0392b; margin-top: var(--space-md); display: none; }
+    .submit-error.visible { display: block; }
+
+    /* FOOTER */
+    .footer { background: var(--olive-dark); color: var(--cream); padding: var(--space-2xl) 0 var(--space-xl); }
+    .footer__top { display: grid; grid-template-columns: 1fr; gap: var(--space-2xl); margin-bottom: var(--space-2xl); }
+    @media (min-width: 640px) { .footer__top { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .footer__top { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+    .footer__brand-logo { font-size: 22px; font-weight: 700; letter-spacing: 0.04em; margin-bottom: var(--space-md); }
+    .footer__brand-tagline { font-size: 13px; color: rgba(250,248,244,0.5); line-height: 1.6; max-width: 280px; margin-bottom: var(--space-lg); }
+    .footer__social { display: flex; gap: var(--space-md); }
+    .footer__social-link { width: 36px; height: 36px; border-radius: var(--radius-full); border: 1px solid rgba(250,248,244,0.15); display: flex; align-items: center; justify-content: center; color: rgba(250,248,244,0.6); transition: all 0.2s; }
+    .footer__social-link:hover { border-color: var(--gold); color: var(--gold); }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(250,248,244,0.4); margin-bottom: var(--space-lg); }
+    .footer__links { display: flex; flex-direction: column; gap: var(--space-sm); }
+    .footer__link { font-size: 14px; color: rgba(250,248,244,0.65); transition: color 0.2s; }
+    .footer__link:hover { color: var(--gold); }
+    .footer__bottom { display: flex; flex-direction: column; gap: var(--space-md); padding-top: var(--space-xl); border-top: 1px solid rgba(250,248,244,0.08); }
+    @media (min-width: 640px) { .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
+    .footer__copyright { font-size: 12px; color: rgba(250,248,244,0.35); }
+    .footer__payment { display: flex; gap: var(--space-sm); }
+    .payment-badge { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; padding: 4px 8px; border: 1px solid rgba(250,248,244,0.15); border-radius: var(--radius-sm); color: rgba(250,248,244,0.4); }
+    .whatsapp-btn { position: fixed; bottom: var(--space-xl); right: var(--space-lg); width: 52px; height: 52px; background: #25d366; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(37,211,102,0.4); z-index: 900; transition: transform 0.3s var(--ease-spring); }
+    .whatsapp-btn:hover { transform: scale(1.1); }
+    .whatsapp-btn svg { width: 26px; height: 26px; }
+
+    /* Loading spinner */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.35); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="navbar__inner">
+      <a href="/" class="navbar__logo" aria-label="L'Oro del Nilo">
+        <span class="navbar__logo-en">L'Oro del Nilo</span>
+        <span class="navbar__logo-ar">ذهب النيل</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-btn" data-lang="ar">AR</button>
+          <button class="lang-btn active" data-lang="it">IT</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+        <a href="cart.html" class="cart-btn" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <nav class="mobile-menu__links">
+    <a href="/" class="mobile-menu__link i18n" data-key="nav_products">Prodotti</a>
+    <a href="/" class="mobile-menu__link i18n" data-key="nav_categories">Categorie</a>
+  </nav>
+  <div class="lang-switcher">
+    <button class="lang-btn" data-lang="ar">AR</button>
+    <button class="lang-btn active" data-lang="it">IT</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+  </div>
+</div>
+
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="container">
+    <span class="eyebrow i18n" data-key="checkout_eyebrow">Completa il tuo ordine</span>
+    <h1><span class="i18n" data-key="checkout_title">Checkout</span> <em class="i18n" data-key="checkout_title_em">sicuro</em></h1>
+  </div>
+</div>
+
+
+<!-- MAIN -->
+<main class="checkout-page">
+  <div class="container">
+
+    <!-- Steps -->
+    <div class="checkout-steps">
+      <div class="step active">
+        <div class="step__num">1</div>
+        <span class="i18n" data-key="step_info">Dati</span>
+      </div>
+      <div class="step-sep"></div>
+      <div class="step">
+        <div class="step__num">2</div>
+        <span class="i18n" data-key="step_payment">Pagamento</span>
+      </div>
+      <div class="step-sep"></div>
+      <div class="step">
+        <div class="step__num">3</div>
+        <span class="i18n" data-key="step_confirm">Conferma</span>
+      </div>
+    </div>
+
+    <div class="checkout-layout">
+
+      <!-- LEFT: Form -->
+      <div>
+
+        <!-- Personal info -->
+        <div class="form-section">
+          <h2 class="form-section__title">
+            <span class="form-section__icon">👤</span>
+            <span class="i18n" data-key="section_personal">Informazioni personali</span>
+          </h2>
+          <div class="form-grid form-grid--2">
+            <div class="field">
+              <label for="firstName"><span class="i18n" data-key="label_first_name">Nome</span><span class="req">*</span></label>
+              <input type="text" id="firstName" name="firstName" autocomplete="given-name" />
+              <span class="field__err" id="errFirstName"></span>
+            </div>
+            <div class="field">
+              <label for="lastName"><span class="i18n" data-key="label_last_name">Cognome</span><span class="req">*</span></label>
+              <input type="text" id="lastName" name="lastName" autocomplete="family-name" />
+              <span class="field__err" id="errLastName"></span>
+            </div>
+            <div class="field">
+              <label for="email"><span class="i18n" data-key="label_email">Email</span><span class="req">*</span></label>
+              <input type="email" id="email" name="email" autocomplete="email" />
+              <span class="field__err" id="errEmail"></span>
+            </div>
+            <div class="field">
+              <label for="phone"><span class="i18n" data-key="label_phone">Telefono</span></label>
+              <input type="tel" id="phone" name="phone" autocomplete="tel" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping address -->
+        <div class="form-section">
+          <h2 class="form-section__title">
+            <span class="form-section__icon">📦</span>
+            <span class="i18n" data-key="section_shipping">Indirizzo di spedizione</span>
+          </h2>
+          <div class="form-grid">
+            <div class="field field--full">
+              <label for="street"><span class="i18n" data-key="label_street">Via / Indirizzo</span><span class="req">*</span></label>
+              <input type="text" id="street" name="street" autocomplete="street-address" />
+              <span class="field__err" id="errStreet"></span>
+            </div>
+            <div class="form-grid form-grid--2" style="grid-column:1/-1; display:contents;">
+              <div class="field">
+                <label for="city"><span class="i18n" data-key="label_city">Città</span><span class="req">*</span></label>
+                <input type="text" id="city" name="city" autocomplete="address-level2" />
+                <span class="field__err" id="errCity"></span>
+              </div>
+              <div class="field">
+                <label for="postalCode"><span class="i18n" data-key="label_postal">CAP</span><span class="req">*</span></label>
+                <input type="text" id="postalCode" name="postalCode" autocomplete="postal-code" maxlength="10" />
+                <span class="field__err" id="errPostal"></span>
+              </div>
+            </div>
+            <div class="field field--full">
+              <label for="country"><span class="i18n" data-key="label_country">Paese</span><span class="req">*</span></label>
+              <select id="country" name="country" autocomplete="country">
+                <option value="">— Seleziona —</option>
+                <option value="IT">Italia</option>
+                <option value="EG">Egitto / Egypt</option>
+                <option value="FR">France</option>
+                <option value="DE">Deutschland</option>
+                <option value="ES">España</option>
+                <option value="GB">United Kingdom</option>
+                <option value="NL">Nederland</option>
+                <option value="BE">Belgique</option>
+                <option value="CH">Schweiz</option>
+                <option value="AT">Österreich</option>
+                <option value="SE">Sverige</option>
+                <option value="NO">Norge</option>
+                <option value="DK">Danmark</option>
+                <option value="PL">Polska</option>
+                <option value="PT">Portugal</option>
+                <option value="GR">Ελλάδα</option>
+                <option value="SA">Saudi Arabia</option>
+                <option value="AE">UAE</option>
+                <option value="OTHER">Other</option>
+              </select>
+              <span class="field__err" id="errCountry"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment -->
+        <div class="form-section">
+          <h2 class="form-section__title">
+            <span class="form-section__icon">💳</span>
+            <span class="i18n" data-key="section_payment">Metodo di pagamento</span>
+          </h2>
+          <div class="payment-options">
+            <div class="payment-option selected" id="codOption" onclick="selectPayment('cod')">
+              <div class="payment-option__radio"></div>
+              <div class="payment-option__icon">💵</div>
+              <div class="payment-option__body">
+                <p class="payment-option__title i18n" data-key="payment_cod_title">Contrassegno (Cash on Delivery)</p>
+                <p class="payment-option__desc i18n" data-key="payment_cod_desc">Paga in contanti alla consegna. Nessun addebito anticipato.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-section">
+          <h2 class="form-section__title">
+            <span class="form-section__icon">📝</span>
+            <span class="i18n" data-key="section_notes">Note per la consegna</span>
+            <span style="font-size:11px; color:var(--muted); font-weight:400; margin-inline-start:auto;" class="i18n" data-key="optional">Opzionale</span>
+          </h2>
+          <div class="field">
+            <textarea id="notes" name="notes" rows="3" placeholder="..."></textarea>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="submit-error" id="submitError"></div>
+
+      </div><!-- /form left col -->
+
+
+      <!-- RIGHT: Summary -->
+      <aside class="order-summary">
+        <h2 class="summary__title i18n" data-key="summary_title">Riepilogo ordine</h2>
+
+        <!-- Mini cart -->
+        <div class="mini-cart" id="miniCart"></div>
+
+        <!-- Totals -->
+        <div class="summary__row">
+          <span class="i18n" data-key="summary_subtotal">Subtotale</span>
+          <span id="summarySubtotal">€0,00</span>
+        </div>
+        <div class="summary__row" id="discountRow" style="display:none;">
+          <span class="i18n" data-key="summary_discount">Sconto coupon</span>
+          <span id="summaryDiscount" class="summary__row--discount">-€0,00</span>
+        </div>
+        <div class="summary__row">
+          <span class="i18n" data-key="summary_shipping">Spedizione</span>
+          <span id="summaryShipping">€5,90</span>
+        </div>
+        <div class="summary__row summary__row--total">
+          <span class="i18n" data-key="summary_total">Totale</span>
+          <span id="summaryTotal">€0,00</span>
+        </div>
+
+        <!-- Place order -->
+        <button class="btn-place-order" id="placeOrderBtn" onclick="placeOrder()">
+          <span class="i18n" data-key="btn_place_order">Conferma ordine</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+
+        <!-- Secure -->
+        <div class="secure-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span class="i18n" data-key="secure_msg">Transazione sicura e protetta</span>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</main>
+
+
+<!-- FOOTER -->
+<footer class="footer" id="contact">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <div class="footer__brand-logo">L'Oro del Nilo</div>
+        <p class="footer__brand-tagline i18n" data-key="footer_tagline">Frutti pregiati dal cuore del Mediterraneo. Dal 2009, con passione.</p>
+        <div class="footer__social">
+          <a href="#" class="footer__social-link" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <p class="footer__col-title i18n" data-key="footer_shop">Shop</p>
+        <ul class="footer__links">
+          <li><a href="/" class="footer__link i18n" data-key="nav_products">Prodotti</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer__col-title i18n" data-key="footer_contact_title">Contatti</p>
+        <ul class="footer__links">
+          <li><a href="mailto:info@lorodelnilo.it" class="footer__link">info@lorodelnilo.it</a></li>
+          <li><a href="tel:+390000000000" class="footer__link">+39 000 000 0000</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p class="footer__copyright">© <span id="year"></span> L'Oro del Nilo. <span class="i18n" data-key="footer_rights">Tutti i diritti riservati.</span></p>
+      <div class="footer__payment">
+        <span class="payment-badge">COD</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/390000000000" class="whatsapp-btn" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L0 24l6.323-1.508A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.79 9.79 0 01-5.007-1.374l-.358-.213-3.754.895.955-3.645-.234-.374A9.787 9.787 0 012.182 12C2.182 6.578 6.578 2.182 12 2.182c5.421 0 9.818 4.396 9.818 9.818 0 5.421-4.397 9.818-9.818 9.818z"/></svg>
+</a>
+
+
+<!-- JAVASCRIPT -->
+<script>
+'use strict';
+
+/* ── Translations ─────────────────────────── */
+const T = {
+  it: {
+    nav_products: 'Prodotti', nav_categories: 'Categorie',
+    checkout_eyebrow: 'Completa il tuo ordine', checkout_title: 'Checkout', checkout_title_em: 'sicuro',
+    step_info: 'Dati', step_payment: 'Pagamento', step_confirm: 'Conferma',
+    section_personal: 'Informazioni personali',
+    section_shipping: 'Indirizzo di spedizione',
+    section_payment: 'Metodo di pagamento',
+    section_notes: 'Note per la consegna', optional: 'Opzionale',
+    label_first_name: 'Nome', label_last_name: 'Cognome', label_email: 'Email',
+    label_phone: 'Telefono', label_street: 'Via / Indirizzo', label_city: 'Città',
+    label_postal: 'CAP', label_country: 'Paese',
+    payment_cod_title: 'Contrassegno (Cash on Delivery)',
+    payment_cod_desc: 'Paga in contanti alla consegna. Nessun addebito anticipato.',
+    summary_title: 'Riepilogo ordine',
+    summary_subtotal: 'Subtotale', summary_discount: 'Sconto coupon',
+    summary_shipping: 'Spedizione', summary_total: 'Totale',
+    btn_place_order: 'Conferma ordine',
+    secure_msg: 'Transazione sicura e protetta',
+    err_required: 'Campo obbligatorio',
+    err_email: 'Email non valida',
+    err_cart_empty: 'Il carrello è vuoto. Torna al negozio.',
+    err_order: 'Errore durante l\'invio dell\'ordine. Riprova.',
+    footer_tagline: 'Frutti pregiati dal cuore del Mediterraneo. Dal 2009, con passione.',
+    footer_shop: 'Shop', footer_contact_title: 'Contatti', footer_rights: 'Tutti i diritti riservati.',
+    currency: '€',
+  },
+  en: {
+    nav_products: 'Products', nav_categories: 'Categories',
+    checkout_eyebrow: 'Complete your order', checkout_title: 'Secure', checkout_title_em: 'checkout',
+    step_info: 'Info', step_payment: 'Payment', step_confirm: 'Confirm',
+    section_personal: 'Personal information',
+    section_shipping: 'Shipping address',
+    section_payment: 'Payment method',
+    section_notes: 'Delivery notes', optional: 'Optional',
+    label_first_name: 'First name', label_last_name: 'Last name', label_email: 'Email',
+    label_phone: 'Phone', label_street: 'Street address', label_city: 'City',
+    label_postal: 'Postal code', label_country: 'Country',
+    payment_cod_title: 'Cash on Delivery',
+    payment_cod_desc: 'Pay in cash upon delivery. No advance charge.',
+    summary_title: 'Order summary',
+    summary_subtotal: 'Subtotal', summary_discount: 'Coupon discount',
+    summary_shipping: 'Shipping', summary_total: 'Total',
+    btn_place_order: 'Place order',
+    secure_msg: 'Secure and protected transaction',
+    err_required: 'Required field',
+    err_email: 'Invalid email address',
+    err_cart_empty: 'Your cart is empty. Go back to the shop.',
+    err_order: 'Error placing order. Please try again.',
+    footer_tagline: 'Premium fruits from the heart of the Mediterranean. Since 2009.',
+    footer_shop: 'Shop', footer_contact_title: 'Contact', footer_rights: 'All rights reserved.',
+    currency: '€',
+  },
+  ar: {
+    nav_products: 'المنتجات', nav_categories: 'التصنيفات',
+    checkout_eyebrow: 'أتمم طلبك', checkout_title: 'دفع', checkout_title_em: 'آمن',
+    step_info: 'البيانات', step_payment: 'الدفع', step_confirm: 'التأكيد',
+    section_personal: 'المعلومات الشخصية',
+    section_shipping: 'عنوان الشحن',
+    section_payment: 'طريقة الدفع',
+    section_notes: 'ملاحظات التوصيل', optional: 'اختياري',
+    label_first_name: 'الاسم الأول', label_last_name: 'اسم العائلة', label_email: 'البريد الإلكتروني',
+    label_phone: 'رقم الهاتف', label_street: 'الشارع / العنوان', label_city: 'المدينة',
+    label_postal: 'الرمز البريدي', label_country: 'الدولة',
+    payment_cod_title: 'الدفع عند الاستلام',
+    payment_cod_desc: 'ادفع نقداً عند التسليم. لا يوجد خصم مسبق.',
+    summary_title: 'ملخص الطلب',
+    summary_subtotal: 'المجموع الفرعي', summary_discount: 'خصم الكوبون',
+    summary_shipping: 'الشحن', summary_total: 'الإجمالي',
+    btn_place_order: 'تأكيد الطلب',
+    secure_msg: 'معاملة آمنة ومحمية',
+    err_required: 'هذا الحقل مطلوب',
+    err_email: 'بريد إلكتروني غير صالح',
+    err_cart_empty: 'سلة مشترياتك فارغة. ارجع للمتجر.',
+    err_order: 'خطأ في إرسال الطلب. حاول مجدداً.',
+    footer_tagline: 'ثمار فاخرة من قلب البحر المتوسط. منذ 2009، بشغف.',
+    footer_shop: 'المتجر', footer_contact_title: 'تواصل', footer_rights: 'جميع الحقوق محفوظة.',
+    currency: '€',
+  }
+};
+
+/* ── State ────────────────────────────────── */
+let currentLang    = localStorage.getItem('lang') || 'it';
+let paymentMethod  = 'cod';
+
+const SHIPPING_BASE    = 5.90;
+const SHIPPING_FREE_AT = 50;
+
+/* ── Cart helpers ─────────────────────────── */
+function getCart() {
+  try { return JSON.parse(localStorage.getItem('orodelnilo_cart') || '[]'); }
+  catch { return []; }
+}
+
+function getPricing() {
+  try { return JSON.parse(localStorage.getItem('orodelnilo_pricing') || 'null'); }
+  catch { return null; }
+}
+
+/* ── Render sidebar summary ───────────────── */
+function renderSummary() {
+  const cart    = getCart();
+  const t       = T[currentLang];
+  const pricing = getPricing();
+
+  // Nav badge
+  const totalQty = cart.reduce((s, i) => s + i.quantity, 0);
+  const countEl  = document.getElementById('cartCount');
+  countEl.textContent = totalQty;
+  countEl.classList.toggle('visible', totalQty > 0);
+
+  // Mini cart
+  const miniCart = document.getElementById('miniCart');
+  miniCart.innerHTML = cart.map(item => {
+    const imgHtml = item.image_url
+      ? `<img src="${item.image_url}" alt="${item.product_name}" loading="lazy">`
+      : `<div class="mini-item__img-placeholder">🌰</div>`;
+    return `
+    <div class="mini-item">
+      <div class="mini-item__img">${imgHtml}</div>
+      <span class="mini-item__name">${item.product_name}<br><span class="mini-item__qty">×${item.quantity}</span></span>
+      <span class="mini-item__price">${t.currency}${(item.unit_price * item.quantity).toFixed(2)}</span>
+    </div>`;
+  }).join('');
+
+  // Totals — use stored pricing if available
+  const subtotal = pricing ? pricing.subtotal : cart.reduce((s, i) => s + i.unit_price * i.quantity, 0);
+  const discount = pricing ? pricing.discount : 0;
+  const shipping = pricing ? pricing.shipping : (subtotal >= SHIPPING_FREE_AT ? 0 : SHIPPING_BASE);
+  const total    = pricing ? pricing.total    : parseFloat((subtotal - discount + shipping).toFixed(2));
+
+  document.getElementById('summarySubtotal').textContent = `${t.currency}${subtotal.toFixed(2)}`;
+  document.getElementById('summaryTotal').textContent    = `${t.currency}${total.toFixed(2)}`;
+
+  const shipEl = document.getElementById('summaryShipping');
+  if (shipping === 0) {
+    shipEl.innerHTML = `<span style="color:var(--olive);font-weight:600">${currentLang === 'ar' ? 'مجاني' : currentLang === 'en' ? 'Free' : 'Gratuita'}</span>`;
+  } else {
+    shipEl.textContent = `${t.currency}${shipping.toFixed(2)}`;
+  }
+
+  const discRow = document.getElementById('discountRow');
+  if (discount > 0) {
+    discRow.style.display = '';
+    document.getElementById('summaryDiscount').textContent = `-${t.currency}${discount.toFixed(2)}`;
+  } else {
+    discRow.style.display = 'none';
+  }
+}
+
+/* ── Payment selection ────────────────────── */
+function selectPayment(method) {
+  paymentMethod = method;
+  document.querySelectorAll('.payment-option').forEach(el => {
+    el.classList.toggle('selected', el.id === method + 'Option');
+  });
+}
+
+/* ── Form Validation ──────────────────────── */
+function validateField(id, errorId, validationFn) {
+  const el  = document.getElementById(id);
+  const err = document.getElementById(errorId);
+  const msg = validationFn(el.value.trim());
+  if (msg) {
+    el.classList.add('error');
+    err.textContent = msg;
+    err.classList.add('visible');
+    return false;
+  } else {
+    el.classList.remove('error');
+    err.classList.remove('visible');
+    return true;
+  }
+}
+
+function clearError(id, errorId) {
+  document.getElementById(id)?.classList.remove('error');
+  const err = document.getElementById(errorId);
+  if (err) err.classList.remove('visible');
+}
+
+function validateAll() {
+  const t   = T[currentLang];
+  const req = t.err_required;
+  let ok = true;
+
+  const checks = [
+    ['firstName', 'errFirstName',  v => v ? '' : req],
+    ['lastName',  'errLastName',   v => v ? '' : req],
+    ['email',     'errEmail',      v => v ? (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : t.err_email) : req],
+    ['street',    'errStreet',     v => v ? '' : req],
+    ['city',      'errCity',       v => v ? '' : req],
+    ['postalCode','errPostal',     v => v ? '' : req],
+    ['country',   'errCountry',   v => v ? '' : req],
+  ];
+
+  checks.forEach(([id, errId, fn]) => {
+    if (!validateField(id, errId, fn)) ok = false;
+  });
+
+  return ok;
+}
+
+/* ── Place order ──────────────────────────── */
+async function placeOrder() {
+  const t    = T[currentLang];
+  const cart = getCart();
+
+  // Client-side validations
+  if (cart.length === 0) {
+    showSubmitError(t.err_cart_empty);
+    return;
+  }
+
+  if (!validateAll()) {
+    document.querySelector('.field input.error, .field select.error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const pricing  = getPricing();
+  const coupon   = pricing?.coupon || null;
+
+  const btn = document.getElementById('placeOrderBtn');
+  btn.disabled    = true;
+  btn.innerHTML   = `<span class="spinner"></span>&nbsp;`;
+  hideSubmitError();
+
+  // Build payload for POST /api/orders
+  const payload = {
+    items: cart.map(item => ({
+      product_id: item.product_id,
+      quantity:   item.quantity,
+    })),
+    coupon_code:          coupon || undefined,
+    payment_method:       paymentMethod,
+    shipping_first_name:  document.getElementById('firstName').value.trim(),
+    shipping_last_name:   document.getElementById('lastName').value.trim(),
+    shipping_street:      document.getElementById('street').value.trim(),
+    shipping_city:        document.getElementById('city').value.trim(),
+    shipping_postal_code: document.getElementById('postalCode').value.trim(),
+    shipping_country:     document.getElementById('country').value,
+    shipping_phone:       document.getElementById('phone').value.trim() || undefined,
+    notes:                document.getElementById('notes').value.trim() || undefined,
+  };
+
+  try {
+    const res  = await fetch('/api/orders', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showSubmitError(data.error || t.err_order);
+      btn.disabled   = false;
+      btn.innerHTML  = `<span class="i18n" data-key="btn_place_order">${t.btn_place_order}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>`;
+      return;
+    }
+
+    // Success → clear cart, save order info, redirect
+    localStorage.removeItem('orodelnilo_cart');
+    localStorage.removeItem('orodelnilo_pricing');
+    localStorage.setItem('orodelnilo_last_order', JSON.stringify({
+      order_number: data.data.order_number,
+      total:        data.data.total,
+      email:        document.getElementById('email').value.trim(),
+    }));
+
+    window.location.href = 'success.html';
+
+  } catch (err) {
+    showSubmitError(t.err_order);
+    btn.disabled  = false;
+    btn.innerHTML = `<span class="i18n" data-key="btn_place_order">${t.btn_place_order}</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>`;
+  }
+}
+
+function showSubmitError(msg) {
+  const el = document.getElementById('submitError');
+  el.textContent = msg;
+  el.classList.add('visible');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function hideSubmitError() {
+  document.getElementById('submitError').classList.remove('visible');
+}
+
+/* ── Live field clearing on input ─────────── */
+['firstName','lastName','email','street','city','postalCode','country'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => {
+    const errMap = { firstName:'errFirstName', lastName:'errLastName', email:'errEmail',
+                     street:'errStreet', city:'errCity', postalCode:'errPostal', country:'errCountry' };
+    clearError(id, errMap[id]);
+  });
+});
+
+/* ── i18n ────────────────────────────────── */
+function applyTranslations() {
+  const t   = T[currentLang];
+  const dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir  = dir;
+  document.querySelectorAll('.i18n[data-key]').forEach(el => {
+    const key = el.dataset.key;
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+}
+
+/* ── Language switcher ────────────────────── */
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentLang = btn.dataset.lang;
+    localStorage.setItem('lang', currentLang);
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+    applyTranslations();
+    renderSummary();
+  });
+  btn.classList.toggle('active', btn.dataset.lang === currentLang);
+});
+
+/* ── Hamburger ────────────────────────────── */
+document.getElementById('hamburger').addEventListener('click', function () {
+  this.classList.toggle('open');
+  document.getElementById('mobileMenu').classList.toggle('open');
+  this.setAttribute('aria-expanded', this.classList.contains('open'));
+});
+
+/* ── Footer year ──────────────────────────── */
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ── Init ────────────────────────────────── */
+applyTranslations();
+renderSummary();
+</script>
+
+</body>
+</html>
