@@ -1415,24 +1415,57 @@ function toggleSidebar(force){
 // ═══════════════════════════════════════════════
 // API HELPER
 // ═══════════════════════════════════════════════
-async function apiFetch(path, opts={}){
-  if(!path.startsWith('/api/')){
-    path = path.replace(/^\/?/, '/api/');
-  }
-  try {
-    const res = await fetch(path, {
-      headers:{'Content-Type':'application/json',...(opts.headers||{})},
-      ...opts,
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
-    });
-    const json = await res.json();
-    if(!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
-    return json;
-  } catch(e){
-    throw e;
-  }
+// الدالة المسؤولة عن حفظ المنتج بالترتيب الصحيح
+async function handleSaveProduct(productData, imageFile) {
+    try {
+        let imageUrl = "";
+
+        // 1. إذا كان فيه صورة مضافة، نرفعها الأول لـ Cloudinary
+        if (imageFile) {
+            // تحويل الصورة لـ Base64
+            const base64Image = await convertToBase64(imageFile);
+            
+            showToast("جاري رفع الصورة إلى السحاب...", "info");
+            
+            // إرسال الصورة لسيرفر الرفع
+            const uploadRes = await apiFetch('/api/upload', {
+                method: 'POST',
+                body: { image: base64Image } // أو حسب ما يتوقع الباك إند: file أو image
+            });
+
+            // أخذ الرابط الحقيقي القادم من Cloudinary
+            imageUrl = uploadRes.url || uploadRes.secure_url;
+        }
+
+        // 2. دمج رابط الصورة الحقيقي داخل بيانات المنتج
+        productData.image = imageUrl; 
+
+        showToast("جاري حفظ بيانات المنتج...", "info");
+
+        // 3. إرسال الطلب النهائي لحفظ المنتج في قاعدة البيانات
+        const savedProduct = await apiFetch('/api/products', {
+            method: 'POST',
+            body: productData
+        });
+
+        showToast("تم حفظ المنتج بنجاح!", "success");
+        return savedProduct;
+
+    } catch (error) {
+        console.error("خطأ أثناء الحفظ:", error);
+        showToast("فشل حفظ المنتج: " + error.message, "error");
+    }
 }
 
+// دالة مساعدة لتحويل الملف إلى Base64
+function convertToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
 // ═══════════════════════════════════════════════
 // TOAST
 // ═══════════════════════════════════════════════
@@ -1702,13 +1735,46 @@ async function saveProduct(){
   ['featured','best_seller','is_active'].forEach(f=>{
     body[f] = document.getElementById(`product-${f}`)?.checked;
   });
+
+  const fileInput = document.querySelector('#product-upload-zone input[type=file]');
+  const imageFile = fileInput?.files?.[0];
   let img = document.getElementById('product-main_image').value;
-  if(img){
+
+  if(imageFile){
+    try {
+      toast('جاري رفع الصورة...','info');
+      const base64Image = await convertToBase64(imageFile);
+      const uploadRes = await apiFetch('/api/upload', {
+        method: 'POST',
+        body: { file: base64Image, folder: 'loro-del-nilo' }
+      });
+      img = uploadRes.data?.url || uploadRes.data?.secure_url || img;
+      if(!img){
+        throw new Error('تعذر الحصول على رابط الصورة من السيرفر');
+      }
+      document.getElementById('product-main_image').value = img;
+    } catch(err){
+      toast('فشل رفع الصورة قبل حفظ المنتج','error');
+      btn.disabled=false; btn.textContent='حفظ المنتج';
+      return;
+    }
+  } else if(img){
+    if(img.startsWith('blob:')){
+      toast('يرجى إعادة اختيار الصورة قبل الحفظ','error');
+      btn.disabled=false; btn.textContent='حفظ المنتج';
+      return;
+    }
     if(img.startsWith('data:')){
       try {
         toast('جاري رفع الصورة...','info');
-        const uploadRes = await apiFetch('/api/upload',{method:'POST',body:{file:img,folder:'loro-del-nilo'}});
+        const uploadRes = await apiFetch('/api/upload', {
+          method: 'POST',
+          body: { file: img, folder: 'loro-del-nilo' }
+        });
         img = uploadRes.data?.url || uploadRes.data?.secure_url || img;
+        if(!img){
+          throw new Error('تعذر الحصول على رابط الصورة من السيرفر');
+        }
         document.getElementById('product-main_image').value = img;
       } catch(err){
         toast('فشل رفع الصورة قبل حفظ المنتج','error');
@@ -1716,13 +1782,9 @@ async function saveProduct(){
         return;
       }
     }
-    if(img.startsWith('blob:')){
-      toast('يرجى إعادة اختيار الصورة قبل الحفظ','error');
-      btn.disabled=false; btn.textContent='حفظ المنتج';
-      return;
-    }
-    body.main_image = img;
   }
+
+  if(img) body.main_image = img;
   if(!body.name_ar && !body.name_it && !body.name_en){toast('الاسم مطلوب','error');btn.disabled=false;btn.textContent='حفظ المنتج';return;}
   if(!body.slug){toast('Slug مطلوب','error');btn.disabled=false;btn.textContent='حفظ المنتج';return;}
   if(!body.price || body.price < 0){toast('السعر مطلوب','error');btn.disabled=false;btn.textContent='حفظ المنتج';return;}
@@ -1739,6 +1801,15 @@ async function saveProduct(){
     loadProducts();
   } catch(e){ toast(e.message||'فشل الحفظ','error'); }
   btn.disabled=false; btn.textContent='حفظ المنتج';
+}
+
+function convertToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
 }
 
 function deleteProduct(id, name){
