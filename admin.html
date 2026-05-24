@@ -1702,8 +1702,27 @@ async function saveProduct(){
   ['featured','best_seller','is_active'].forEach(f=>{
     body[f] = document.getElementById(`product-${f}`)?.checked;
   });
-  const img = document.getElementById('product-main_image').value;
-  if(img) body.main_image = img;
+  let img = document.getElementById('product-main_image').value;
+  if(img){
+    if(img.startsWith('data:')){
+      try {
+        toast('جاري رفع الصورة...','info');
+        const uploadRes = await apiFetch('/api/upload',{method:'POST',body:{file:img,folder:'loro-del-nilo'}});
+        img = uploadRes.data?.url || uploadRes.data?.secure_url || img;
+        document.getElementById('product-main_image').value = img;
+      } catch(err){
+        toast('فشل رفع الصورة قبل حفظ المنتج','error');
+        btn.disabled=false; btn.textContent='حفظ المنتج';
+        return;
+      }
+    }
+    if(img.startsWith('blob:')){
+      toast('يرجى إعادة اختيار الصورة قبل الحفظ','error');
+      btn.disabled=false; btn.textContent='حفظ المنتج';
+      return;
+    }
+    body.main_image = img;
+  }
   if(!body.name_ar && !body.name_it && !body.name_en){toast('الاسم مطلوب','error');btn.disabled=false;btn.textContent='حفظ المنتج';return;}
   if(!body.slug){toast('Slug مطلوب','error');btn.disabled=false;btn.textContent='حفظ المنتج';return;}
   if(!body.price || body.price < 0){toast('السعر مطلوب','error');btn.disabled=false;btn.textContent='حفظ المنتج';return;}
